@@ -1,0 +1,286 @@
+﻿<#@ Template Language="C#" HostSpecific="True" Inherits="DynamicTransform" #>
+<#@ Output extension="cshtml" #>
+<#@ assembly name="System.ComponentModel.DataAnnotations" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Data.Entity" #>
+<#@ assembly name="System.Data.Linq" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Collections" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.ComponentModel.DataAnnotations" #>
+<#@ import namespace="System.Data.Linq.Mapping" #>
+<#@ import namespace="System.Data.Objects.DataClasses" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Reflection" #>
+<# var viewDataType = (EnvDTE.CodeType) Model.ViewDataType; #>
+<blockquote>
+    <h2><#= Model.ViewDataTypeName ?? String.Empty #></h2>
+</blockquote>
+<!--
+    * ng-app <#= Model.ViewDataTypeName ?? String.Empty #>App
+    * ng-controller <#= Model.ViewDataTypeName ?? String.Empty #>Ctrl
+    * Single Page Application for CRUD operations on <#= Model.ViewDataTypeName ?? String.Empty #>
+-->
+<div data-ng-app="<#= Model.ViewDataTypeName ?? String.Empty #>App" data-ng-controller="<#= Model.ViewDataTypeName ?? String.Empty #>Ctrl" class="container">
+    <!-- 
+        * Create area of SPA
+    -->
+    <div class="row">
+        <div class="col-md-12">
+            <strong class="error">{{ error }}</strong>
+            <p data-ng-hide="addMode"><a data-ng-click="toggleAdd()" href="javascript:;" class="btn btn-success btn-lg">Add New <#= Model.ViewDataTypeName ?? String.Empty #></a></p>
+
+            <!--
+                * form add<#= Model.ViewDataTypeName ?? String.Empty #>
+                * Form for inserting <#= Model.ViewDataTypeName ?? String.Empty #> Records
+            -->
+            <form name="add<#= Model.ViewDataTypeName ?? String.Empty #>" data-ng-show="addMode" novalidate ng-submit="add()">
+
+                
+<#
+foreach (ModelProperty property in GetModelProperties(Model.ViewDataType, false)) {
+    if (!property.IsPrimaryKey && !property.IsForeignKey && !property.IsReadOnly && property.Name != "CreatedBy" && property.Name != "UpdatedBy" && property.Name != "CreatedDate" && property.Name != "UpdatedDate" && property.Name != "IsDeleted" && property.Name != "Comp_Code" && property.Name!="Off_Code") {
+#>
+	<# 
+	if(property.Type.UnderlyingTypeIs<bool>())
+	{#>
+	   <div class="form-group">
+          <label for="<#= property.Name #>" class="col-sm-3 control-label"><#= property.Name #> :</label>
+            <div class="">
+            <input type="checkbox" class="form-control" name="<#= property.Name #>"  data-ng-model="new<#= Model.ViewDataTypeName ?? String.Empty #>.<#= property.Name #>" />
+         </div>
+       </div>
+	<# }
+	else if(property.Type.UnderlyingTypeIs<string>()) {
+	#>
+				<div class="form-group">
+                    <label for="<#= property.Name #>" class="col-sm-3 control-label"><#= property.Name #> :</label>
+                    <div class="">
+                        <input type="text" class="form-control" name="<#= property.Name #>" placeholder="Please Enter <#= property.Name #>" data-ng-model="new<#= Model.ViewDataTypeName ?? String.Empty #>.<#= property.Name #>" ng-minlength=3 ng-maxlength=20 ng-pattern="" ng-required="true" autocomplete="off"/>
+						<div class="error" 
+							ng-show="add<#= Model.ViewDataTypeName ?? String.Empty #>.<#= property.Name #>.$dirty && add<#= Model.ViewDataTypeName ?? String.Empty #>.<#= property.Name #>.$invalid">
+							<small class="error" 
+								ng-show="add<#= Model.ViewDataTypeName ?? String.Empty #>.<#= property.Name #>.$error.required">
+									<#= property.Name #> is required.
+							</small>
+							<small class="error" 
+								ng-show="add<#= Model.ViewDataTypeName ?? String.Empty #>.<#= property.Name #>.$error.minlength">
+									<#= property.Name #> is required to be at least 3 characters
+							</small>
+							<small class="error" 
+								ng-show="add<#= Model.ViewDataTypeName ?? String.Empty #>.<#= property.Name #>.$error.maxlength">
+									<#= property.Name #> cannot be longer than 20 characters
+							</small>
+							<small class="error" 
+								ng-show="add<#= Model.ViewDataTypeName ?? String.Empty #>.<#= property.Name #>.$error.pattern">
+									<#= property.Name #> pattern should be 
+							</small>
+						</div>
+                    </div>
+                </div>
+<#
+	 }else if(property.Type.UnderlyingTypeIs<decimal>() || property.Type.UnderlyingTypeIs<int>() || property.Type.UnderlyingTypeIs<float>()){ #>
+	 
+	 <div class="form-group">
+                    <label for="<#= property.Name #>" class="col-sm-3 control-label"><#= property.Name #> :</label>
+                    <div class="">
+                        <input type="text" class="form-control" name="<#= property.Name #>" placeholder="Please Enter <#= property.Name #>" data-ng-model="new<#= Model.ViewDataTypeName ?? String.Empty #>.<#= property.Name #>"  ng-maxlength=20  ng-required="true" autocomplete="off"/>
+						<div class="error" 
+							ng-show="add<#= Model.ViewDataTypeName ?? String.Empty #>.<#= property.Name #>.$dirty && add<#= Model.ViewDataTypeName ?? String.Empty #>.<#= property.Name #>.$invalid">
+							<small class="error" 
+								ng-show="add<#= Model.ViewDataTypeName ?? String.Empty #>.<#= property.Name #>.$error.required">
+									<#= property.Name #> is required.
+							</small>
+							<small class="error" 
+								ng-show="add<#= Model.ViewDataTypeName ?? String.Empty #>.<#= property.Name #>.$error.maxlength">
+									<#= property.Name #> cannot be longer than 20 characters
+							</small>
+							
+						</div>
+                    </div>
+                </div>
+	
+	 <#}
+	}
+}
+#>
+				<br />
+                <div class="form-group">
+                    <div class="col-sm-offset-2 ">
+					<button type="submit" value="Add" class="btn btn-info" ng-disabled="add<#= Model.ViewDataTypeName ?? String.Empty #>.$invalid" >Add</button>
+                        <input type="button" value="Cancel" data-ng-click="toggleAdd()" class="btn btn-info" />
+                    </div>
+                </div>
+                <br />
+			</form>
+		</div>
+	</div>
+
+	<!--
+        * Get <#= Model.ViewDataTypeName ?? String.Empty #>s
+    -->
+    <div class="row">
+        <div class="col-lg-6">
+              <button class="btn btn-success" type="button" ng-click="get<#= Model.ViewDataTypeName ?? String.Empty #>s()">Get <#= Model.ViewDataTypeName ?? String.Empty #>s</button>
+        </div>
+    </div>
+
+	<!--
+        * Edit, Delete and Display Area of SPA
+    -->
+    <div class="row" data-ng-show="display">
+        <div class="col-md-12">
+            <br />
+            <div class="panel panel-default">
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table>
+						<thead>
+                        <tr>
+						<#
+						foreach (ModelProperty property in GetModelProperties(Model.ViewDataType, false)) {
+							if (!property.IsPrimaryKey && !property.IsForeignKey && !property.IsReadOnly && property.Name != "CreatedBy" && property.Name != "UpdatedBy" && property.Name != "CreatedDate" && property.Name != "UpdatedDate" && property.Name != "IsDeleted" && property.Name != "Comp_Code" && property.Name!="Off_Code") {
+						#>
+							<th><#= property.Name #></th>
+							<#
+							}
+						}
+						#>
+						<th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody data-ng-repeat="<#= Model.ViewDataTypeName ?? String.Empty #> in <#= Model.ViewDataTypeName ?? String.Empty #>s">
+                        <tr>
+						<#
+						foreach (ModelProperty property in GetModelProperties(Model.ViewDataType, false)) {
+							if (!property.IsPrimaryKey && !property.IsForeignKey && !property.IsReadOnly && property.Name != "CreatedBy" && property.Name != "UpdatedBy" && property.Name != "CreatedDate" && property.Name != "UpdatedDate" && property.Name != "IsDeleted" && property.Name != "Comp_Code" && property.Name!="Off_Code") {
+							var name = property.Name.ToString();
+							var propnewName = char.ToLower(name[0]) + name.Substring(1);
+							if(property.Name == "IsActive"){ 
+							#>  
+							<td>
+                                <input type="checkbox" data-ng-hide="<#= Model.ViewDataTypeName ?? String.Empty #>.editMode" data-ng-model="<#= Model.ViewDataTypeName ?? String.Empty #>.isActive" data-ng-disabled="true" />
+                                <input data-ng-show="<#= Model.ViewDataTypeName ?? String.Empty #>.editMode" type="checkbox" data-ng-model="<#= Model.ViewDataTypeName ?? String.Empty #>.isActive" />
+                            </td>  
+
+							<#}else if(property.Type.UnderlyingTypeIs<bool>()) {#>
+							<td>
+							 <input type="checkbox" data-ng-hide="<#= Model.ViewDataTypeName ?? String.Empty #>.editMode" data-ng-model="<#= Model.ViewDataTypeName ?? String.Empty #>.<#= propnewName	#>" data-ng-disabled="true" />
+                                <input data-ng-show="<#= Model.ViewDataTypeName ?? String.Empty #>.editMode" type="checkbox" data-ng-model="<#= Model.ViewDataTypeName ?? String.Empty #>.<#= propnewName	#>" />
+							</td>
+							<# }
+							else{
+						#>
+							<td>
+                                <strong data-ng-hide="<#= Model.ViewDataTypeName ?? String.Empty #>.editMode">{{ <#= Model.ViewDataTypeName ?? String.Empty #>.<#= propnewName	#> }}</strong>
+                                <input data-ng-show="<#= Model.ViewDataTypeName ?? String.Empty #>.editMode" type="text" data-ng-model="<#= Model.ViewDataTypeName ?? String.Empty #>.<#= propnewName #>" />
+                            </td>
+							<#
+							}
+							}
+						}
+						#>
+							<td>
+                                <p data-ng-hide="<#= Model.ViewDataTypeName ?? String.Empty #>.editMode"><a data-ng-click="toggleEdit(<#= Model.ViewDataTypeName ?? String.Empty #>)" href="javascript:;">Edit</a> | <a data-ng-click="delete<#= Model.ViewDataTypeName ?? String.Empty #>(<#= Model.ViewDataTypeName ?? String.Empty #>)" href="javascript:;">Delete</a></p>
+                                <p data-ng-show="<#= Model.ViewDataTypeName ?? String.Empty #>.editMode"><a data-ng-click="save(<#= Model.ViewDataTypeName ?? String.Empty #>)" href="javascript:;">Save</a> | <a data-ng-click="toggleEdit(<#= Model.ViewDataTypeName ?? String.Empty #>)" href="javascript:;">Cancel</a></p>
+                            </td>
+						</tr>
+					</tbody>
+				</table>
+				<button class="btn btn-round" style="float:right" data-ng-click="toggleDisplay()">Hide</button>
+			</div>
+			</div>
+		 </div>                        
+	</div>
+	</div>
+</div>
+
+<script src="~/Scripts/app/<#= Model.ViewDataTypeName ?? String.Empty #>AngularController.js"></script>
+<#+
+// Describes the information about a property on the model
+class ModelProperty {
+    public string Name { get; set; }
+    public string ValueExpression { get; set; }
+	public EnvDTE.CodeTypeRef Type { get; set; }
+    public bool IsPrimaryKey { get; set; }
+	public bool IsForeignKey { get; set; }
+	public bool IsReadOnly { get; set; }
+}
+
+// Change this list to include any non-primitive types you think should be eligible to be edited using a textbox
+static Type[] bindableNonPrimitiveTypes = new[] {
+    typeof(string),
+    typeof(decimal),
+	typeof(int),
+    typeof(Guid),
+    typeof(DateTime),
+    typeof(DateTimeOffset),
+    typeof(TimeSpan),
+};
+
+// Call this to get the list of properties in the model. Change this to modify or add your
+// own default formatting for display values.
+List<ModelProperty> GetModelProperties(EnvDTE.CodeType typeInfo, bool includeUnbindableProperties) {
+    List<ModelProperty> results = GetEligibleProperties(typeInfo, includeUnbindableProperties);
+    
+    foreach (ModelProperty prop in results) {
+        if (prop.Type.UnderlyingTypeIs<double>() || prop.Type.UnderlyingTypeIs<decimal>()) {
+            prop.ValueExpression = "String.Format(\"{0:F}\", " + prop.ValueExpression + ")";
+        }
+        else if (prop.Type.UnderlyingTypeIs<DateTime>()) {
+            prop.ValueExpression = "String.Format(\"{0:g}\", " + prop.ValueExpression + ")";
+        }
+		else if (!IsBindableType(prop.Type)) {
+			prop.ValueExpression = GetValueExpression("Model." + prop.Name, (EnvDTE.CodeType)prop.Type.CodeType);
+		}
+    }
+
+    return results;
+}
+
+// Change this list to include the names of properties that should be selected to represent an entity as a single string
+static string[] displayPropertyNames = new[] { "Name", "Title", "LastName", "Surname", "Subject", "Count" };
+
+string GetValueExpression(string propertyExpression, EnvDTE.CodeType propertyType) {
+	if (propertyType != null) {
+		var chosenSubproperty = propertyType.DisplayColumnProperty() ?? propertyType.FindProperty(displayPropertyNames);
+		if (chosenSubproperty != null) {
+			var toStringSuffix = chosenSubproperty.Type.AsFullName == "System.String" ? "" : ".ToString()";
+			return String.Format("({0} == null ? \"None\" : {0}.{1}{2})", propertyExpression, chosenSubproperty.Name, toStringSuffix);
+		}
+	}
+	return "Html.DisplayTextFor(_ => " + propertyExpression + ").ToString()";
+}
+
+// Helper
+List<ModelProperty> GetEligibleProperties(EnvDTE.CodeType typeInfo, bool includeUnbindableProperties) {
+    List<ModelProperty> results = new List<ModelProperty>();
+	if (typeInfo != null) {
+		foreach (var prop in typeInfo.VisibleMembers().OfType<EnvDTE.CodeProperty>()) {
+			if (prop.IsReadable() && !prop.HasIndexParameters() && (includeUnbindableProperties || IsBindableType(prop.Type))) {
+				results.Add(new ModelProperty {
+					Name = prop.Name,
+					ValueExpression = "Model." + prop.Name,
+					Type = prop.Type,
+					IsPrimaryKey = Model.PrimaryKeyName == prop.Name,
+					IsForeignKey = ParentRelations.Any(x => x.RelationProperty == prop),
+					IsReadOnly = !prop.IsWriteable()
+				});
+			}
+		}
+	}
+
+    return results;
+}
+
+IEnumerable<RelatedEntityInfo> ParentRelations {
+	get { return ((IEnumerable)Model.RelatedEntities).OfType<RelatedEntityInfo>().Where(x => x.RelationType == RelationType.Parent); }
+}
+
+// Helper
+bool IsBindableType(EnvDTE.CodeTypeRef type) {
+    return type.UnderlyingIsPrimitive() || bindableNonPrimitiveTypes.Any(x => type.UnderlyingTypeIs(x));
+}
+
+#>

@@ -1,0 +1,109 @@
+<blockquote>
+    <h2>Employee</h2>
+</blockquote>
+<!--
+    * ng-app EmployeeApp
+    * ng-controller EmployeeCtrl
+    * Single Page Application for CRUD operations on Employee
+-->
+<div data-ng-app="EmployeeApp" data-ng-controller="EmployeeCtrl" class="container">
+    <!-- 
+        * Create area of SPA
+    -->
+    <div class="row">
+        <div class="col-md-12">
+            <strong class="error">{{ error }}</strong>
+            <p data-ng-hide="addMode"><a data-ng-click="toggleAdd()" href="javascript:;" class="btn btn-success btn-lg">Add New Employee</a></p>
+
+            <!--
+                * form addEmployee
+                * Form for inserting Employee Records
+            -->
+            <form name="addEmployee" data-ng-show="addMode" novalidate ng-submit="add()">
+
+                
+					<div class="form-group">
+                    <label for="Name" class="col-sm-3 control-label">Name :</label>
+                    <div class="">
+                        <input type="text" class="form-control" name="Name" placeholder="Please Enter Name" data-ng-model="newEmployee.Name" ng-minlength=3 ng-maxlength=20 ng-pattern="" ng-required="true" autocomplete="off"/>
+						<div class="error" 
+							ng-show="addEmployee.Name.$dirty && addEmployee.Name.$invalid">
+							<small class="error" 
+								ng-show="addEmployee.Name.$error.required">
+									Name is required.
+							</small>
+							<small class="error" 
+								ng-show="addEmployee.Name.$error.minlength">
+									Name is required to be at least 3 characters
+							</small>
+							<small class="error" 
+								ng-show="addEmployee.Name.$error.maxlength">
+									Name cannot be longer than 20 characters
+							</small>
+							<small class="error" 
+								ng-show="addEmployee.Name.$error.pattern">
+									Name pattern should be 
+							</small>
+						</div>
+                    </div>
+                </div>
+				<br />
+                <div class="form-group">
+                    <div class="col-sm-offset-2 ">
+					<button type="submit" value="Add" class="btn btn-info" ng-disabled="addEmployee.$invalid" >Add</button>
+                        <input type="button" value="Cancel" data-ng-click="toggleAdd()" class="btn btn-info" />
+                    </div>
+                </div>
+                <br />
+			</form>
+		</div>
+	</div>
+
+	<!--
+        * Get Employees
+    -->
+    <div class="row">
+        <div class="col-lg-6">
+              <button class="btn btn-success" type="button" ng-click="getEmployees()">Get Employees</button>
+        </div>
+    </div>
+
+	<!--
+        * Edit, Delete and Display Area of SPA
+    -->
+    <div class="row" data-ng-show="display">
+        <div class="col-md-12">
+            <br />
+            <div class="panel panel-default">
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table>
+						<thead>
+                        <tr>
+													<th>Name</th>
+													<th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody data-ng-repeat="Employee in Employees">
+                        <tr>
+													<td>
+                                <strong data-ng-hide="Employee.editMode">{{ Employee.name }}</strong>
+                                <input data-ng-show="Employee.editMode" type="text" data-ng-model="Employee.name" />
+                            </td>
+														<td>
+                                <p data-ng-hide="Employee.editMode"><a data-ng-click="toggleEdit(Employee)" href="javascript:;">Edit</a> | <a data-ng-click="deleteEmployee(Employee)" href="javascript:;">Delete</a></p>
+                                <p data-ng-show="Employee.editMode"><a data-ng-click="save(Employee)" href="javascript:;">Save</a> | <a data-ng-click="toggleEdit(Employee)" href="javascript:;">Cancel</a></p>
+                            </td>
+						</tr>
+					</tbody>
+				</table>
+				<button class="btn btn-round" style="float:right" data-ng-click="toggleDisplay()">Hide</button>
+			</div>
+			</div>
+		 </div>                        
+	</div>
+	</div>
+</div>
+
+<script src="~/Scripts/app/EmployeeAngularController.js"></script>

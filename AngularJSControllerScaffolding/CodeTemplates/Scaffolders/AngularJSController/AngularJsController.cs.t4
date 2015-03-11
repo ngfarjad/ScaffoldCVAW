@@ -1,0 +1,229 @@
+﻿<#@ Template Language="C#" HostSpecific="True" Inherits="DynamicTransform" #>
+<#@ Output extension="js" #>
+<#@ assembly name="System.ComponentModel.DataAnnotations" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Data.Entity" #>
+<#@ assembly name="System.Data.Linq" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Collections" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.ComponentModel.DataAnnotations" #>
+<#@ import namespace="System.Data.Linq.Mapping" #>
+<#@ import namespace="System.Data.Objects.DataClasses" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Reflection" #>
+<# var viewDataType = (EnvDTE.CodeType) Model.ViewDataType; #>
+/**
+ * @ngdoc controller
+ * @module <#= Model.ViewDataTypeName ?? String.Empty #>App
+ * @name <#= Model.ViewDataTypeName ?? String.Empty #>AppDocumentation
+ * @description AngularJS controller for <#= Model.ViewDataTypeName ?? String.Empty #> View
+ * @param {$scope} angularJS scope
+ * @param {$http} required for http services
+ *
+ * ###Additional information
+ * This is the <#= Model.ViewDataTypeName ?? String.Empty #>App module for model view binding (<#= Model.ViewDataTypeName ?? String.Empty #>)
+ */
+angular.module('<#= Model.ViewDataTypeName ?? String.Empty #>App', [])
+	.controller('<#= Model.ViewDataTypeName ?? String.Empty #>Ctrl', function ($scope, $http) {
+		/**
+		* @fields <#= Model.ViewDataTypeName ?? String.Empty #>s
+		* Empty objects for storing data retrieved from http request to WebApi
+		*/
+		$scope.<#= Model.ViewDataTypeName ?? String.Empty #>s = [];
+
+		/**
+		* Flags for rendering differnt sections of Page
+		* Required for making the Single Page Application
+		*/
+		$scope.loading = false;
+		$scope.addMode = false;
+		$scope.display = false;
+
+		/**
+		* This method retrieves <#= Model.ViewDataTypeName ?? String.Empty #> record by calling GET http service to WebApi.
+		* It only recieves one specific <#= Model.ViewDataTypeName ?? String.Empty #> record which was searched.
+		* It also gets other objects related to that <#= Model.ViewDataTypeName ?? String.Empty #> record.
+		* @method get<#= Model.ViewDataTypeName ?? String.Empty #>s
+		* @param no parameters
+		*/
+		$scope.get<#= Model.ViewDataTypeName ?? String.Empty #>s = function () {
+				$http.get('/api/<#= Model.ViewDataTypeName ?? String.Empty #>sApi/').success(function (data) {
+					$scope.<#= Model.ViewDataTypeName ?? String.Empty #>s = data;
+					$scope.loading = false;
+					$scope.display = true;
+				}).error(function () {
+					$scope.error = "An Error has occured while loading posts!";
+					$scope.loading = false;
+					$scope.display = false;
+				});
+		};
+
+		/**
+		* toggles edit view
+		* @method toggleEdit
+		*/
+		$scope.toggleEdit = function () {
+			this.<#= Model.ViewDataTypeName ?? String.Empty #>.editMode = !this.<#= Model.ViewDataTypeName ?? String.Empty #>.editMode;
+		};
+
+		/**
+		* toggles add view
+		* @method toggleAdd
+		*/
+		$scope.toggleAdd = function () {
+			$scope.addMode = !$scope.addMode;
+		};
+
+		 /**
+		* toggles hide table
+		* @method toggleDisplay
+		*/
+		$scope.toggleDisplay = function () {
+			 $scope.display = !$scope.display;
+		};
+
+		/**
+		* This method inserts <#= Model.ViewDataTypeName ?? String.Empty #> record by sending POST http service to WebApi.
+		* @method add
+		* @param no parameters
+		*/
+		$scope.add = function () {
+			$scope.loading = true;
+			$http.post('/api/<#= Model.ViewDataTypeName ?? String.Empty #>sApi/', this.new<#= Model.ViewDataTypeName ?? String.Empty #>).success(function (data) {
+				alert("Added Successfully!!");
+				$scope.addMode = false;
+				$scope.<#= Model.ViewDataTypeName ?? String.Empty #>s.push(data);
+				$scope.loading = false;
+				$scope.new<#= Model.ViewDataTypeName ?? String.Empty #> = null;
+			}).error(function (data) {
+				$scope.error = "An Error has occured while Adding <#= Model.ViewDataTypeName ?? String.Empty #>! " + data;
+				$scope.loading = false;
+			});
+		};
+
+		/**
+		* This method updates <#= Model.ViewDataTypeName ?? String.Empty #> record by sending PUT http service to WebApi.
+		* @method save
+		* @param no parameters
+		*/
+		$scope.save = function () {
+			$scope.loading = true;
+			var obj = this.<#= Model.ViewDataTypeName ?? String.Empty #>;
+			$http.put('/api/<#= Model.ViewDataTypeName ?? String.Empty #>sApi/' + obj.id, obj).success(function (data) {
+				alert("Saved Successfully !!");
+				obj.editMode = false;
+				$scope.loading = false;
+			}).error(function (data) {
+				$scope.error = "An Error has occured while Saving <#= Model.ViewDataTypeName.ToLower() ?? String.Empty #>! " + data;
+				$scope.loading = false;
+			});
+		};
+
+		/**
+		* This method deletes <#= Model.ViewDataTypeName ?? String.Empty #> record by sending DELETE http service to WebApi.
+		* @method delete<#= Model.ViewDataTypeName ?? String.Empty #>
+		* @param no parameters
+		*/
+		$scope.delete<#= Model.ViewDataTypeName ?? String.Empty #> = function () {
+			$scope.loading = true;
+			var Id = this.<#= Model.ViewDataTypeName ?? String.Empty #>.id
+			$http.delete('/api/<#= Model.ViewDataTypeName ?? String.Empty #>sApi/' + Id + '/').success(function (data) {
+				alert("Deleted Successfully!!");
+				$scope.<#= Model.ViewDataTypeName ?? String.Empty #>s = [];
+				$scope.display = false;
+				$scope.loading = false;
+			}).error(function (data) {
+				$scope.error = "An Error has occured while Saving <#= Model.ViewDataTypeName ?? String.Empty #>! " + data;
+				$scope.loading = false;
+			});
+		};
+	});
+
+
+<#+
+// Describes the information about a property on the model
+class ModelProperty {
+	public string Name { get; set; }
+	public string ValueExpression { get; set; }
+	public EnvDTE.CodeTypeRef Type { get; set; }
+	public bool IsPrimaryKey { get; set; }
+	public bool IsForeignKey { get; set; }
+	public bool IsReadOnly { get; set; }
+}
+
+// Change this list to include any non-primitive types you think should be eligible to be edited using a textbox
+static Type[] bindableNonPrimitiveTypes = new[] {
+	typeof(string),
+	typeof(decimal),
+	typeof(Guid),
+	typeof(DateTime),
+	typeof(DateTimeOffset),
+	typeof(TimeSpan),
+};
+
+// Call this to get the list of properties in the model. Change this to modify or add your
+// own default formatting for display values.
+List<ModelProperty> GetModelProperties(EnvDTE.CodeType typeInfo, bool includeUnbindableProperties) {
+	List<ModelProperty> results = GetEligibleProperties(typeInfo, includeUnbindableProperties);
+	
+	foreach (ModelProperty prop in results) {
+		if (prop.Type.UnderlyingTypeIs<double>() || prop.Type.UnderlyingTypeIs<decimal>()) {
+			prop.ValueExpression = "String.Format(\"{0:F}\", " + prop.ValueExpression + ")";
+		}
+		else if (prop.Type.UnderlyingTypeIs<DateTime>()) {
+			prop.ValueExpression = "String.Format(\"{0:g}\", " + prop.ValueExpression + ")";
+		}
+		else if (!IsBindableType(prop.Type)) {
+			prop.ValueExpression = GetValueExpression("Model." + prop.Name, (EnvDTE.CodeType)prop.Type.CodeType);
+		}
+	}
+
+	return results;
+}
+
+// Change this list to include the names of properties that should be selected to represent an entity as a single string
+static string[] displayPropertyNames = new[] { "Name", "Title", "LastName", "Surname", "Subject", "Count" };
+
+string GetValueExpression(string propertyExpression, EnvDTE.CodeType propertyType) {
+	if (propertyType != null) {
+		var chosenSubproperty = propertyType.DisplayColumnProperty() ?? propertyType.FindProperty(displayPropertyNames);
+		if (chosenSubproperty != null) {
+			var toStringSuffix = chosenSubproperty.Type.AsFullName == "System.String" ? "" : ".ToString()";
+			return String.Format("({0} == null ? \"None\" : {0}.{1}{2})", propertyExpression, chosenSubproperty.Name, toStringSuffix);
+		}
+	}
+	return "Html.DisplayTextFor(_ => " + propertyExpression + ").ToString()";
+}
+
+// Helper
+List<ModelProperty> GetEligibleProperties(EnvDTE.CodeType typeInfo, bool includeUnbindableProperties) {
+	List<ModelProperty> results = new List<ModelProperty>();
+	if (typeInfo != null) {
+		foreach (var prop in typeInfo.VisibleMembers().OfType<EnvDTE.CodeProperty>()) {
+			if (prop.IsReadable() && !prop.HasIndexParameters() && (includeUnbindableProperties || IsBindableType(prop.Type))) {
+				results.Add(new ModelProperty {
+					Name = prop.Name,
+					ValueExpression = "Model." + prop.Name,
+					Type = prop.Type,
+					IsPrimaryKey = Model.PrimaryKeyName == prop.Name,
+					IsForeignKey = ParentRelations.Any(x => x.RelationProperty == prop),
+					IsReadOnly = !prop.IsWriteable()
+				});
+			}
+		}
+	}
+
+	return results;
+}
+
+IEnumerable<RelatedEntityInfo> ParentRelations {
+	get { return ((IEnumerable)Model.RelatedEntities).OfType<RelatedEntityInfo>().Where(x => x.RelationType == RelationType.Parent); }
+}
+
+// Helper
+bool IsBindableType(EnvDTE.CodeTypeRef type) {
+	return type.UnderlyingIsPrimitive() || bindableNonPrimitiveTypes.Any(x => type.UnderlyingTypeIs(x));
+}
+
+#>
