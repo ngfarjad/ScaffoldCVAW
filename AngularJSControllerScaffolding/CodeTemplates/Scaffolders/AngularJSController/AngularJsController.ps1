@@ -42,6 +42,7 @@ if (!$ModelType) {
 		}
 		if ($foundModelType) {
 			$ControllerName = [string](Get-PluralizedWord $foundModelType.Name) + "Controller"
+            
 		}
 	}
 	if (!$foundModelType) { throw "Cannot find a model type corresponding to a controller called '$ControllerName'. Try supplying a -ModelType parameter value." }
@@ -109,32 +110,38 @@ Add-ProjectItemViaTemplate $outputPath -Template $templateName -Model @{
 	Repository = $repositoryName; 
 	ModelTypePluralized = [string]$modelTypePluralized; 
 	RelatedEntities = $relatedEntities;
-} -SuccessMessage "Added controller {0}" -TemplateFolders $TemplateFolders -Project $Project -CodeLanguage $CodeLanguage -Force:$overwriteController
+} -SuccessMessage "Added ASP .NET Mvc Controller {0}" -TemplateFolders $TemplateFolders -Project $Project -CodeLanguage $CodeLanguage -Force:$overwriteController
 
 
-$templateName = "AngularJsController"
+$viewName = "Index"
+$finalPath = [string](Get-PluralizedWord $Controller)
+Scaffold $ViewScaffolder -Controller $finalPath -ViewName $viewName -ModelType $ModelType -Template "Index" -Area $Area -Layout $Layout -SectionNames $SectionNames -PrimarySectionName $PrimarySectionName -ReferenceScriptLibraries:$ReferenceScriptLibraries -Project $Project -CodeLanguage $CodeLanguage -OverrideTemplateFolders $TemplateFolders -Force:$Force
 
-$viewName = $Controller + "Index"
-Scaffold $ViewScaffolder -Controller $Controller -ViewName $viewName -ModelType $ModelType -Template "AngularJsView" -Area $Area -Layout $Layout -SectionNames $SectionNames -PrimarySectionName $PrimarySectionName -ReferenceScriptLibraries:$ReferenceScriptLibraries -Project $Project -CodeLanguage $CodeLanguage -OverrideTemplateFolders $TemplateFolders -Force:$Force
 $viewName = $Controller + "AngularController"
-Scaffold $ViewScaffolder -Controller $Controller -ViewName $viewName  -ModelType $ModelType -Template "AngularJsController" -Area $Area -Layout $Layout -SectionNames $SectionNames -PrimarySectionName $PrimarySectionName -ReferenceScriptLibraries:$ReferenceScriptLibraries -Project $Project -CodeLanguage $CodeLanguage -OverrideTemplateFolders $TemplateFolders -Force:$Force
-
-
-
-
-$templateName = "Controller"
-Add-ProjectItemViaTemplate $outputPath -Template $templateName -Model @{
-	ControllerName = $ControllerName;
-	ModelType = [MarshalByRefObject]$foundModelType; 
-	PrimaryKey = [string]$primaryKey; 
-	DefaultNamespace = $defaultNamespace; 
-	AreaNamespace = $areaNamespace; 
-	DbContextNamespace = $dbContextNamespace;
-	RepositoriesNamespace = $repositoriesNamespace;
-	ModelTypeNamespace = $modelTypeNamespace; 
-	ControllerNamespace = $controllerNamespace; 
-	DbContextType = [MarshalByRefObject]$foundDbContextType;
-	Repository = $repositoryName; 
-	ModelTypePluralized = [string]$modelTypePluralized; 
+$finalPath = "Scripts\app\" + $Controller + "AngularController"
+Add-ProjectItemViaTemplate $finalPath -Template "AngularJsController" -Model @{
+    IsContentPage = [bool]$Layout;
+	Layout = $Layout;
+	SectionNames = $SectionNames;
+	PrimarySectionName = $PrimarySectionName;
+	ReferenceScriptLibraries = $ReferenceScriptLibraries.ToBool();
+	ViewName = $ViewName;
+	PrimaryKeyName = [string]$primaryKey;
+	ViewDataType = [MarshalByRefObject]$foundModelType;
+	ViewDataTypeName = $foundModelType.Name;
 	RelatedEntities = $relatedEntities;
-} -SuccessMessage "Added controller {0}" -TemplateFolders $TemplateFolders -Project $Project -CodeLanguage $CodeLanguage -Force:$overwriteController
+
+} -SuccessMessage "Added AngularJs Controller at {0}" `
+	-TemplateFolders $TemplateFolders -Project $Project -CodeLanguage $CodeLanguage -Force:$Force
+
+$finalPath = [string](Get-PluralizedWord $foundModelType.Name) + "ApiController"
+Add-ProjectItemViaTemplate "Controllers\$finalPath" -Template "Controller" -Model @{ 
+		Namespace = $defaultNamespace;  
+		ApiControllerName = $controllerNamespace;
+		ModelType = $ModelType; 
+        ModelTypePluralized = [string]$modelTypePluralized; 
+        DbContextType = $DbContextType;
+        PluralController = [string](Get-PluralizedWord $foundModelType.Name);
+	} -SuccessMessage "Added WEB API controller at {0}" `
+	-TemplateFolders $TemplateFolders -Project $Project -CodeLanguage $CodeLanguage -Force:$Force
+

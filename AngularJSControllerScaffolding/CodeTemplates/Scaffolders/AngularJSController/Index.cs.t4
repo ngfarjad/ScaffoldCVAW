@@ -13,6 +13,7 @@
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Reflection" #>
 <# var viewDataType = (EnvDTE.CodeType) Model.ViewDataType; #>
+<script src="~/Scripts/angular.js"></script>
 <blockquote>
     <h2><#= Model.ViewDataTypeName ?? String.Empty #></h2>
 </blockquote>

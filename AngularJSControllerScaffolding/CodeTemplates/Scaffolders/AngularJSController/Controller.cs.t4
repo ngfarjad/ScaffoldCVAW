@@ -4,44 +4,100 @@
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ output extension=".cs" #>
-using System;
 using System.Collections.Generic;
-using System.Data;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Web;
 using System.Web.Http;
 using <#= Model.Namespace #>.Models;
 
 namespace <#= Model.ApiControllerName #>
 {
-	public class <#= Model.Namespace #> : ApiController 
+	[Route("api/<#= Model.PluralController #>Api/{id?}", Name = "api_<#= Model.PluralController #>Api")]
+	public class <#= Model.PluralController #>ApiController : ApiController 
 	{
+		private <#=  Model.DbContextType #> db = new <#= Model.DbContextType #>();
+		
 		public IEnumerable<<#= Model.ModelType #>> GetAll()
 		{
-			throw new NotImplementedException();
+			return db.<#= Model.ModelTypePluralized #>;
 		}
 
-		public <#= Model.ModelType #> Get(int id)
+		public IHttpActionResult Get<#= Model.ModelType #>(int id)
 		{
-			throw new NotImplementedException();
+			<#= Model.ModelType #> <#= Model.ModelType.ToLower() #> = db.<#= Model.ModelTypePluralized #>.Find(id);
+			if (<#= Model.ModelType.ToLower() #> == null)
+			{
+				return NotFound();
+			}
+
+			return Ok(<#= Model.ModelType.ToLower() #>);
 		}
 
-		public HttpResponseMessage Post(<#= Model.ModelType #> item)
+		public IHttpActionResult Post<#= Model.ModelType #>(<#= Model.ModelType #> <#= Model.ModelType.ToLower() #>)
 		{
-			throw new NotImplementedException();
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(ModelState);
+			}
+
+			db.<#= Model.ModelTypePluralized #>.Add(<#= Model.ModelType.ToLower() #>);
+			db.SaveChanges();
+
+			return CreatedAtRoute("api_<#= Model.PluralController #>Api", new { id = <#= Model.ModelType.ToLower() #>.Id }, <#= Model.ModelType.ToLower() #>);
 		}
 
-		public HttpResponseMessage Put(int id, <#= Model.ModelType #> item)
+		public IHttpActionResult Put<#= Model.ModelType #>(int id, <#= Model.ModelType #> <#= Model.ModelType.ToLower() #>)
 		{
-			throw new NotImplementedException();
+			if (!ModelState.IsValid)
+			{
+				return BadRequest(ModelState);
+			}
+
+			if (id != <#= Model.ModelType.ToLower() #>.Id)
+			{
+				return BadRequest();
+			}
+
+			db.Entry(<#= Model.ModelType.ToLower() #>).State = EntityState.Modified;
+
+			try
+			{
+				db.SaveChanges();
+			}
+			catch (DbUpdateConcurrencyException)
+			{
+				if (!<#= Model.ModelType #>Exists(id))
+				{
+					return NotFound();
+				}
+				else
+				{
+					throw;
+				}
+			}
+
+			return StatusCode(HttpStatusCode.NoContent);
 		}
 
-		public HttpResponseMessage Delete(int id)
+		public IHttpActionResult Delete<#= Model.ModelType #>(int id)
 		{
-			throw new NotImplementedException();
+			<#= Model.ModelType #> <#= Model.ModelType.ToLower() #> = db.<#= Model.ModelTypePluralized #>.Find(id);
+			if (<#= Model.ModelType.ToLower() #> == null)
+			{
+				return NotFound();
+			}
+
+			db.<#= Model.ModelTypePluralized #>.Remove(<#= Model.ModelType.ToLower() #>);
+			db.SaveChanges();
+
+			return Ok(<#= Model.ModelType.ToLower() #>);
+		}
+
+		private bool <#= Model.ModelType #>Exists(int id)
+		{
+			return db.<#= Model.ModelTypePluralized #>.Count(m => m.Id == id) > 0;
 		}
 	}
 }
