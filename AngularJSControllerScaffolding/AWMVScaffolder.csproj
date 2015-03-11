@@ -147,11 +147,11 @@
     <Content Include="Scripts\angular.min.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
-    <Content Include="CodeTemplates\Scaffolders\AngularJSController\AngularJsController.ps1" />
-    <Content Include="CodeTemplates\Scaffolders\AngularJSController\AngularJsController.cs.t4" />
-    <Content Include="CodeTemplates\Scaffolders\AngularJSController\Index.cs.t4" />
-    <Content Include="CodeTemplates\Scaffolders\AngularJSController\MVCController.cs.t4" />
-    <Content Include="CodeTemplates\Scaffolders\AngularJSController\Controller.cs.t4" />
+    <Content Include="CodeTemplates\Scaffolders\CVAWScaffold\CVAW.ps1" />
+    <Content Include="CodeTemplates\Scaffolders\CVAWScaffold\AngularJsController.cs.t4" />
+    <Content Include="CodeTemplates\Scaffolders\CVAWScaffold\Index.cs.t4" />
+    <Content Include="CodeTemplates\Scaffolders\CVAWScaffold\MVCController.cs.t4" />
+    <Content Include="CodeTemplates\Scaffolders\CVAWScaffold\Controller.cs.t4" />
     <Content Include="Scripts\angular.min.js.map" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
