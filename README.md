@@ -14,6 +14,8 @@ Execute the following command in Package Manager Console:
 
 `Install-Package ScaffoldCVAW`
 
+### How to Use:
+
 After you have installed the Nuget Package you can Scaffold CRUD operation for any model in your project using:
 
 `Scaffold CVAW <modelName> -dbContext <dbContextName>`
