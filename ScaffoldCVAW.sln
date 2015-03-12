@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScaffoldCVAW", "AngularJSControllerScaffolding\ScaffoldCVAW.csproj", "{0265E653-84D7-4E4B-BF0C-80B688507B7E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScaffoldCVAW", "ScaffoldCVAW\ScaffoldCVAW.csproj", "{0265E653-84D7-4E4B-BF0C-80B688507B7E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
