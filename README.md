@@ -8,6 +8,8 @@ A = Angular Controller
 
 W = Web Api (Service Layer)
 
+A nuget package built using T4Scaffolding and MvcScaffolding which scaffolds CRUD for SPA.
+
 ### How to Install:
 
 Execute the following command in Package Manager Console:
