@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <title>ScaffoldCVAW by farjadbullet</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>ScaffoldCVAW</h1>
+        <h2>Nuget Package for scaffolding SPA CRUD using Web Api, AngularJs &amp; ASP .Net MVC</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/farjadbullet/ScaffoldCVAW/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/farjadbullet/ScaffoldCVAW/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/farjadbullet/ScaffoldCVAW" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h3>
+<a id="scaffold-cvaw" class="anchor" href="#scaffold-cvaw" aria-hidden="true"><span class="octicon octicon-link"></span></a>Scaffold CVAW</h3>
+
+<p>C = Controller (Asp .Net Controller)</p>
+
+<p>V = View (SPA Razor View with AngularJs)</p>
+
+<p>A = Angular Controller</p>
+
+<p>W = Web Api (Service Layer)</p>
+
+<p>A nuget package built using T4Scaffolding and MvcScaffolding which scaffolds CRUD for SPA.</p>
+
+<h3>
+<a id="how-to-install" class="anchor" href="#how-to-install" aria-hidden="true"><span class="octicon octicon-link"></span></a>How to Install</h3>
+
+<p>Execute the following command in Package Manager Console:</p>
+
+<pre><code>Install-Package ScaffoldCVAW
+</code></pre>
+
+<h3>
+<a id="how-to-use" class="anchor" href="#how-to-use" aria-hidden="true"><span class="octicon octicon-link"></span></a>How to Use</h3>
+
+<p>After you have installed the Nuget Package you can Scaffold CRUD operation for any model in your project using:</p>
+
+<pre><code>Scaffold CVAW &lt;modelName&gt; -dbContext &lt;dbContextName&gt;
+</code></pre>
+
+<p>It will generate the following files:</p>
+
+<ul>
+<li>An Asp .Net Controller in your project's Controllers Folder. The controller will have only one method that will render the View <code>Index</code>.</li>
+<li>A Razor View in the corresponding Views// location.</li>
+<li>An Angular Controller which will be used to communicate with the Service Layer and make the View Responsive.</li>
+<li>A Web Api (Service Layer) which is responsible for processing the Ajax calls sent by the UI and returning data in response to that call.</li>
+</ul>
+
+<h3>
+<a id="example" class="anchor" href="#example" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example</h3>
+
+<p>If you want to see what the Nuget Package does then just download this repository and run the following command after opening it in Visual Studio 2013</p>
+
+<pre><code>Scaffold CVAW Employee -dbContext DbC
+</code></pre>
+
+<h3>
+<a id="author" class="anchor" href="#author" aria-hidden="true"><span class="octicon octicon-link"></span></a>Author</h3>
+
+<p>You can contact the author Syed Farjad Zia Zaidi (<a href="https://github.com/farjadbullet" class="user-mention">@farjadbullet</a>) on the following details:</p>
+
+<p>Email: <a href="mailto:farjad_bullet@rocketmail.com">farjad_bullet@rocketmail.com</a></p>
+
+<p>Skype: fkbullet</p>
+      </section>
+    </div>
+
+    
+  </body>
+</html>
