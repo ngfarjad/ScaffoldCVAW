@@ -1,0 +1,51 @@
+@using System.Web.UI.WebControls.WebParts
+<script src="~/Scripts/angular.js"></script>
+<script src="~/Scripts/angular-route.js"></script>
+<script src="~/Content/dist/angular-datatables.js"></script>
+
+<blockquote>
+    <script src="~/Content/dist/plugins/bootstrap/angular-datatables.bootstrap.js"></script>
+
+    <h2>Employee</h2>
+</blockquote>
+<!--
+    * ng-app EmployeeApp
+    * ng-controller EmployeeCtrl
+    * Single Page Application for CRUD operations on Employee
+-->
+<div data-ng-app="EmployeeApp" ng-controller="EmployeeCtrl as showCase" class="container">
+    <link href="~/Content/vendor/datatables-tabletools/css/dataTables.tableTools.css" rel="stylesheet" />
+    <!-- ... -->
+    @*<table datatable="" dt-options="showCase.dtOptions" dt-columns="showCase.dtColumns" class="row-border hover"></table>*@
+    <table datatable="ng" dt-options="showCase.dtOptions" class="row-border hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>FirstName</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="person in showCase.Employees">
+                <td>{{ person.Id }}</td>
+                <td>{{ person.Name }}</td>
+                <td>
+                    <a href="/Employees/Edit?employeeId={{person.Id}}">
+                        <i class="fi-pencil">&nbsp;</i>Edit
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <!-- ... -->
+    
+
+    <script src="~/Content/vendor/datatables-tabletools/js/dataTables.tableTools.js"></script>
+    <script src="~/Content/dist/plugins/tabletools/angular-datatables.tabletools.js"></script>
+    
+    
+    
+    
+</div>
+
+<script src="~/Scripts/app/EmployeeAngularController.js"></script>

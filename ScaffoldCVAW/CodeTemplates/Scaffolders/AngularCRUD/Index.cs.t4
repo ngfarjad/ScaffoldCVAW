@@ -149,7 +149,7 @@ foreach (ModelProperty property in GetModelProperties(Model.ViewDataType, false)
 	<!--
         * Edit, Delete and Display Area of SPA
     -->
-    <div class="row" data-ng-show="display">
+    <div class="row" data-ng-show="self.display">
         <div class="col-md-12">
             <br />
             <div class="panel panel-default">
@@ -209,7 +209,7 @@ foreach (ModelProperty property in GetModelProperties(Model.ViewDataType, false)
 						</tr>
 					</tbody>
 				</table>
-				<button class="btn btn-round" style="float:right" data-ng-click="toggleDisplay()">Hide</button>
+				<button class="btn btn-round" style="float:right" data-ng-click="self.toggleDisplay()">Hide</button>
 			</div>
 			</div>
 		 </div>                        

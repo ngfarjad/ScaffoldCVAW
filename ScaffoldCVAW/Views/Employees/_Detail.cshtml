@@ -1,0 +1,13 @@
+<div ng-show="vm.DisplayDetail">
+    <h2>Salary</h2>
+</div>
+
+<div ng-repeat="Salary in vm.Employee.EmployeeSalaries">
+    <div class="form-group form-md-line-input">
+        <input type="text" name="Name" ng-model="Salary.Amount" />
+        Name
+        <span class="help-block">Enter Salary</span>
+    </div>
+    <div class="clearfix"></div>
+</div>
+

@@ -1,0 +1,34 @@
+@{
+    ViewBag.Title = "Create";
+}
+<script src="~/Scripts/angular.js"></script>
+<script src="~/Content/dist/angular-datatables.js"></script>
+<script src="~/Content/vendor/datatables-tabletools/js/dataTables.tableTools.js"></script>
+<script src="~/Content/dist/plugins/tabletools/angular-datatables.tabletools.js"></script>
+<script src="~/Scripts/app/EmployeeAngularController.js"></script>
+<div class="portlet light bordered" ng-controller="EmployeeCtrl as vm" ng-app="EmployeeApp">
+    <div class="portlet-title">
+        <div class="caption font-red-sunglo">
+            <i class="icon-settings font-red-sunglo"></i>
+            <span class="caption-subject bold uppercase"> Create Employee </span>
+        </div>
+
+    </div>
+    <div class="portlet-body form">
+        <form name="EmployeeForm" ng-submit="EmployeeForm.$valid && vm.saveEmployee()" novalidate>
+            <div class="form-body">
+                @Html.Partial("_CreateOrEdit")
+                <div class="clearfix"></div>
+                @Html.Partial("_Detail")
+
+                <div class="form-actions noborder">
+                    <input type="submit" value="Save" class="btn blue" />
+                    <p ng-click="vm.AddDetail();" class="btn blue">
+                        Add Detail
+                    </p>
+                    @Html.ActionLink("Back to List", "Index", null, new { @class = "btn green" })
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
