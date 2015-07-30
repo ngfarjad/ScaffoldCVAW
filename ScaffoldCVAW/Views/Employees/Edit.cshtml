@@ -1,5 +1,3 @@
-@model ScaffoldCVAW.Models.Employee
-
 @{
     ViewBag.Title = "Edit";
 }
@@ -13,7 +11,7 @@
 <div class="portlet light bordered" ng-controller="EmployeeCtrl as vm" ng-app="EmployeeApp">
     <div class="portlet-title">
         <div class="caption font-red-sunglo">
-            <i class="icon-settings font-red-sunglo"></i>
+            <i class="fa fa-edit font-red-sunglo"></i>
             <span class="caption-subject bold uppercase"> Employee</span>
         </div>
 
@@ -21,7 +19,7 @@
     <div class="portlet-body form">
         <form name="EmployeeForm" ng-submit="EmployeeForm.$valid && vm.editEmployee()" novalidate ng-init="vm.getEmployeeById(@ViewBag.Id)">
             <div class="form-body">
-                @Html.Partial("_CreateOrEdit", Model)
+                @Html.Partial("_CreateOrEdit")
                 <div class="clearfix"></div>
                 @Html.Partial("_Detail")
                 <div class="form-actions noborder">

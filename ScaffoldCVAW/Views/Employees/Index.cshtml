@@ -1,51 +1,73 @@
-@using System.Web.UI.WebControls.WebParts
+@{
+    ViewBag.Title = "List";
+}
 <script src="~/Scripts/angular.js"></script>
 <script src="~/Scripts/angular-route.js"></script>
 <script src="~/Content/dist/angular-datatables.js"></script>
+<script src="~/Content/dist/plugins/bootstrap/angular-datatables.bootstrap.js"></script>
+<div class="portlet light bordered" ng-controller="EmployeeCtrl as vm" ng-app="EmployeeApp">
+    <div class="portlet-title">
+        <div class="caption font-red-sunglo">
+            <i class="icon-settings font-red-sunglo"></i>
+            <span class="caption-subject bold uppercase">Employee </span>
+        </div>
+    </div>
+    <div class="portlet-body form">
+        <div data-ng-app="EmployeeApp" ng-controller="EmployeeCtrl as showCase">
+            <link href="~/Content/vendor/datatables-tabletools/css/dataTables.tableTools.css" rel="stylesheet" />
+            <table datatable="ng" dt-options="showCase.dtOptions" class="cell-border">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>FirstName</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="person in showCase.Employees">
+                        <td>{{ person.Id }}</td>
+                        <td>{{ person.Name }}</td>
+                        <td>
+                            <a href="/Employees/Edit/{{person.Id}}" class="btn btn-icon-only yellow">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            |
+                            <a href="/Employees/Details/{{person.Id}}" class="btn btn-icon-only blue">
+                                <i class="fa fa-info"></i>
+                            </a>
+                            |
+                            <a href="#basic" class="btn btn-icon-only red" data-toggle="modal" ng-href="#basic{{person.Id}}">
+                                <i class="fa fa-trash-o"></i>
+                            </a>
+                            <div class="modal fade" id="basic{{person.Id}}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
 
-<blockquote>
-    <script src="~/Content/dist/plugins/bootstrap/angular-datatables.bootstrap.js"></script>
+                                            <h4 class="modal-title">Are you sure you want to delete?</h4>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <form name="EmployeeForm" ng-submit="EmployeeForm.$valid && vm.deleteEmployee(person.Id)" novalidate>
+                                                <p>
+                                                    <input type="submit" value="Delete" class="btn red" />
+                                                    <button type="button" class="btn default" data-dismiss="modal">Close</button>
+                                                </p>
 
-    <h2>Employee</h2>
-</blockquote>
-<!--
-    * ng-app EmployeeApp
-    * ng-controller EmployeeCtrl
-    * Single Page Application for CRUD operations on Employee
--->
-<div data-ng-app="EmployeeApp" ng-controller="EmployeeCtrl as showCase" class="container">
-    <link href="~/Content/vendor/datatables-tabletools/css/dataTables.tableTools.css" rel="stylesheet" />
-    <!-- ... -->
-    @*<table datatable="" dt-options="showCase.dtOptions" dt-columns="showCase.dtColumns" class="row-border hover"></table>*@
-    <table datatable="ng" dt-options="showCase.dtOptions" class="row-border hover">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>FirstName</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr ng-repeat="person in showCase.Employees">
-                <td>{{ person.Id }}</td>
-                <td>{{ person.Name }}</td>
-                <td>
-                    <a href="/Employees/Edit?employeeId={{person.Id}}">
-                        <i class="fi-pencil">&nbsp;</i>Edit
-                    </a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <!-- ... -->
-    
-
-    <script src="~/Content/vendor/datatables-tabletools/js/dataTables.tableTools.js"></script>
-    <script src="~/Content/dist/plugins/tabletools/angular-datatables.tabletools.js"></script>
-    
-    
-    
-    
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <script src="~/Content/vendor/datatables-tabletools/js/dataTables.tableTools.js"></script>
+            <script src="~/Content/dist/plugins/tabletools/angular-datatables.tabletools.js"></script>
+        </div>
+        <script src="~/Scripts/app/EmployeeAngularController.js"></script>
+    </div>
 </div>
 
-<script src="~/Scripts/app/EmployeeAngularController.js"></script>
+
+

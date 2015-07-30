@@ -1,0 +1,42 @@
+@{
+    ViewBag.Title = "Details";
+}
+<script src="~/Scripts/angular.js"></script>
+<script src="~/Scripts/angular-route.min.js"></script>
+<script src="~/Content/dist/angular-datatables.js"></script>
+<script src="~/Content/vendor/datatables-tabletools/js/dataTables.tableTools.js"></script>
+<script src="~/Content/dist/plugins/tabletools/angular-datatables.tabletools.js"></script>
+<script src="~/Scripts/app/EmployeeAngularController.js"></script>
+<div class="portlet light bordered" ng-controller="EmployeeCtrl as vm" ng-app="EmployeeApp" ng-init="vm.getEmployeeById(@ViewBag.Id)">
+    <div class="portlet-title">
+        <div class="caption font-red-sunglo">
+            <i class="icon-settings font-red-sunglo"></i>
+            <span class="caption-subject bold uppercase"> Employee Details</span>
+        </div>
+    </div>
+    <div class="portlet-body form">
+        <div class="form-group form-md-line-input">
+            Name
+
+            <div class="form-control-focus">{{vm.Employee.Name}}</div>
+        </div>
+        <div class="form-group form-md-line-input">
+            <table>
+                <thead>
+                    <tr>
+                        <td>Amount</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="Salary in vm.Employee.EmployeeSalaries">
+                        <td class="form-control-focus">{{Salary.Amount}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="input-group">
+            @Html.ActionLink("Edit", "Edit", new { id = ViewBag.Id }, new { @class = "btn blue" }) |
+            @Html.ActionLink("Back to List", "Index", null, new { @class = "btn green" })
+        </div>
+    </div>
+</div>
