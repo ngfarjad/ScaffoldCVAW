@@ -22,13 +22,29 @@
 <#
 foreach (ModelProperty property in GetModelProperties(Model.ViewDataType, false)) {
     if (!property.IsPrimaryKey && !property.IsForeignKey && !property.IsReadOnly) {
+		if (property.Type.UnderlyingTypeIs<bool>()) {
 #>
-<div class="form-group form-md-line-input">
-    @Html.TextBoxFor(model => model.<#= property.Name #>, new { @class = "form-control" })
-    @Html.ValidationMessageFor(model => model.<#= property.Name #>)
-	@Html.LabelFor(model => model.<#= property.Name #>)
+<div class="form-group form-md-checkboxes">
+    <label><#= property.Name #> </label>
+    <div class="md-checkbox-list">
+        <div class="md-checkbox">
+            <input type="checkbox" id="checkbox1" class="md-check" ng-model="vm.<#= Model.ViewDataTypeName ?? String.Empty #>.<#= property.Name #>">
+            <label for="checkbox1">
+                <span></span>
+                <span class="check"></span>
+                <span class="box"></span>
+            </label>
+        </div>
+    </div>
 </div>
-
+<# 
+} else {
+ #>
+<div class="form-group form-md-line-input">
+	<input type="text" name="<#= property.Name #>" ng-model="vm.<#= Model.ViewDataTypeName ?? String.Empty #>.<#= property.Name #>" class="form-control"/>
+	@Html.LabelFor(model => model.<#= property.Name #>)
+	<span class="help-block">Enter <#= property.Name #></span>
+</div>
 <#
     }
 }
@@ -37,15 +53,10 @@ foreach (ModelProperty property in GetModelProperties(Model.ViewDataType, false)
 foreach (RelatedEntityInfo relation in ParentRelations) {
 #>
 <div class="form-group form-md-line-input">
-    
-
-    @Html.DropDownListFor(model => model.<#= relation.RelationProperty.Name #>, ((IEnumerable<<#= relation.RelatedEntityType.FullName #>>)ViewBag.Possible<#= relation.RelationNamePlural #>).Select(option => new SelectListItem {
-        Text = <#= GetValueExpression("option", relation.RelatedEntityType) #>, 
-        Value = option.<#= relation.RelatedEntityPrimaryKeyName #>.ToString(),
-        Selected = (Model != null) && (option.<#= relation.RelatedEntityPrimaryKeyName #> == Model.<#= relation.RelationProperty.Name #>)
-    }), "Choose...")
-    @Html.ValidationMessageFor(model => model.<#= relation.RelationProperty.Name #>)
-	<#= relation.RelationName #>
+    <select name="<#= relation.RelationProperty.Name #>" id="<#= relation.RelationProperty.Name #>" ng-model="vm.<#= Model.ViewDataTypeName ?? String.Empty #>.<#= relation.RelationProperty.Name #>" ng-init="vm.get<#= relation.RelationNamePlural #>();" class="form-control">
+        <option ng:repeat="option in vm.<#= relation.RelationNamePlural #>" value="{{option.<#= relation.RelatedEntityPrimaryKeyName #>}}">{{option.<#= relation.RelatedEntityPrimaryKeyName #>}}</option>
+    </select>
+    <label><#= relation.RelationName #></label>
 </div>
 <#
 }

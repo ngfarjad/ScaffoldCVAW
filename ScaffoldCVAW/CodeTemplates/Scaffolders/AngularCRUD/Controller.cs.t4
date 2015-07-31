@@ -15,18 +15,18 @@ using <#= Model.Namespace #>.Models;
 namespace <#= Model.ApiControllerName #>
 {
 	[Route("api/<#= Model.PluralController #>Api/{id?}", Name = "api_<#= Model.PluralController #>Api")]
-	public class <#= Model.PluralController #>ApiController : ApiController 
+	public class <#= Model.PluralController #>ApiController : ApiBaseController 
 	{
-		private <#=  Model.DbContextType #> db = new <#= Model.DbContextType #>();
+		private readonly <#=  Model.DbContextType #> _db = new <#= Model.DbContextType #>();
 		
 		public IEnumerable<<#= Model.ModelType #>> GetAll()
 		{
-			return db.<#= Model.ModelTypePluralized #>;
+			return _db.<#= Model.ModelTypePluralized #>;
 		}
 
 		public IHttpActionResult Get<#= Model.ModelType #>(int id)
 		{
-			<#= Model.ModelType #> <#= Model.ModelType.ToLower() #> = db.<#= Model.ModelTypePluralized #>.Find(id);
+			<#= Model.ModelType #> <#= Model.ModelType.ToLower() #> = _db.<#= Model.ModelTypePluralized #>.Find(id);
 			if (<#= Model.ModelType.ToLower() #> == null)
 			{
 				return NotFound();
@@ -42,8 +42,8 @@ namespace <#= Model.ApiControllerName #>
 				return BadRequest(ModelState);
 			}
 
-			db.<#= Model.ModelTypePluralized #>.Add(<#= Model.ModelType.ToLower() #>);
-			db.SaveChanges();
+			_db.<#= Model.ModelTypePluralized #>.Add(<#= Model.ModelType.ToLower() #>);
+			_db.SaveChanges();
 
 			return CreatedAtRoute("api_<#= Model.PluralController #>Api", new { id = <#= Model.ModelType.ToLower() #>.Id }, <#= Model.ModelType.ToLower() #>);
 		}
@@ -60,11 +60,11 @@ namespace <#= Model.ApiControllerName #>
 				return BadRequest();
 			}
 
-			db.Entry(<#= Model.ModelType.ToLower() #>).State = EntityState.Modified;
+			_db.Entry(<#= Model.ModelType.ToLower() #>).State = EntityState.Modified;
 
 			try
 			{
-				db.SaveChanges();
+				_db.SaveChanges();
 			}
 			catch (DbUpdateConcurrencyException)
 			{
@@ -89,15 +89,15 @@ namespace <#= Model.ApiControllerName #>
 				return NotFound();
 			}
 
-			db.<#= Model.ModelTypePluralized #>.Remove(<#= Model.ModelType.ToLower() #>);
-			db.SaveChanges();
+			_db.<#= Model.ModelTypePluralized #>.Remove(<#= Model.ModelType.ToLower() #>);
+			_db.SaveChanges();
 
 			return Ok(<#= Model.ModelType.ToLower() #>);
 		}
 
 		private bool <#= Model.ModelType #>Exists(int id)
 		{
-			return db.<#= Model.ModelTypePluralized #>.Count(m => m.Id == id) > 0;
+			return _db.<#= Model.ModelTypePluralized #>.Count(m => m.Id == id) > 0;
 		}
 	}
 }

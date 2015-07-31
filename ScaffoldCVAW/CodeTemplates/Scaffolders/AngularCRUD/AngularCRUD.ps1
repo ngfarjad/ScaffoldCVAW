@@ -3,13 +3,13 @@ param(
 	[parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)][string]$ControllerName,   
 	[parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)][string]$ChildRelation, 
 	[string]$ModelType,
-    [string]$Project,
-    [string]$CodeLanguage,
+	[string]$Project,
+	[string]$CodeLanguage,
 	[string]$DbContextType,
 	[string]$Area,
 	[string]$ViewScaffolder = "View",
 	[alias("MasterPage")]$Layout,
- 	[alias("ContentPlaceholderIDs")][string[]]$SectionNames,
+	[alias("ContentPlaceholderIDs")][string[]]$SectionNames,
 	[alias("PrimaryContentPlaceholderID")][string]$PrimarySectionName,
 	[switch]$ReferenceScriptLibraries = $false,
 	[switch]$Repository = $false,
@@ -43,7 +43,7 @@ if (!$ModelType) {
 		}
 		if ($foundModelType) {
 			$ControllerName = [string](Get-PluralizedWord $foundModelType.Name) + "Controller"
-            
+			
 		}
 	}
 	if (!$foundModelType) { throw "Cannot find a model type corresponding to a controller called '$ControllerName'. Try supplying a -ModelType parameter value." }
@@ -113,7 +113,6 @@ Add-ProjectItemViaTemplate $outputPath -Template $templateName -Model @{
 	RelatedEntities = $relatedEntities;
 } -SuccessMessage "Added ASP .NET Mvc Controller {0}" -TemplateFolders $TemplateFolders -Project $Project -CodeLanguage $CodeLanguage -Force:$overwriteController
 
-
 $viewName = "Create"
 $finalPath = [string](Get-PluralizedWord $Controller)
 Scaffold $ViewScaffolder -Controller $finalPath -ViewName $viewName -ModelType $ModelType -Template "Create" -Area $Area -Layout $Layout -SectionNames $SectionNames -PrimarySectionName $PrimarySectionName -ReferenceScriptLibraries:$ReferenceScriptLibraries -Project $Project -CodeLanguage $CodeLanguage -OverrideTemplateFolders $TemplateFolders -Force:$Force
@@ -137,7 +136,7 @@ Scaffold $ViewScaffolder -Controller $finalPath -ViewName $viewName -ModelType $
 $viewName = $Controller + "AngularController"
 $finalPath = "Scripts\app\" + $Controller + "AngularController"
 Add-ProjectItemViaTemplate $finalPath -Template "AngularJsController" -Model @{
-    IsContentPage = [bool]$Layout;
+	IsContentPage = [bool]$Layout;
 	Layout = $Layout;
 	SectionNames = $SectionNames;
 	PrimarySectionName = $PrimarySectionName;
@@ -156,9 +155,9 @@ Add-ProjectItemViaTemplate "Controllers\$finalPath" -Template "Controller" -Mode
 		Namespace = $defaultNamespace;  
 		ApiControllerName = $controllerNamespace;
 		ModelType = $ModelType; 
-        ModelTypePluralized = [string]$modelTypePluralized; 
-        DbContextType = $DbContextType;
-        PluralController = [string](Get-PluralizedWord $foundModelType.Name);
+		ModelTypePluralized = [string]$modelTypePluralized; 
+		DbContextType = $DbContextType;
+		PluralController = [string](Get-PluralizedWord $foundModelType.Name);
 	} -SuccessMessage "Added WEB API controller at {0}" `
 	-TemplateFolders $TemplateFolders -Project $Project -CodeLanguage $CodeLanguage -Force:$Force
 

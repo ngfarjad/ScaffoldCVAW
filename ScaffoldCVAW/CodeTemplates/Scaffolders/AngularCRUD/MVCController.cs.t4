@@ -26,15 +26,28 @@ namespace <#= Model.ControllerNamespace #>
     var routingName = Regex.Replace(Model.ControllerName, "Controller$", "", RegexOptions.IgnoreCase);
     var isObjectContext = ((CodeType)Model.DbContextType).IsAssignableTo<System.Data.Objects.ObjectContext>();
 #>
-    public class <#= Model.ControllerName #> : Controller
+    public class <#= Model.ControllerName #> : BaseController
     {
-		//
-        // GET: /<#= routingName #>/
-		#region Index
         public ActionResult Index()
         {
               return View();
         }
-		#endregion
+
+		public ActionResult Create()
+        {
+            return View();
+        }
+        
+		public ActionResult Edit(int id)
+        {
+            ViewBag.Id = id;
+            return View();
+        }
+
+        public ActionResult Detail(int id)
+        {
+            ViewBag.Id = id;
+            return View();
+        }
     }
 }

@@ -14,209 +14,84 @@
 <#@ import namespace="System.Reflection" #>
 <#    var viewDataType = (EnvDTE.CodeType) Model.ViewDataType; #>
 <script src="~/Scripts/angular.js"></script>
-<blockquote>
-    <h2><#=        Model.ViewDataTypeName ?? String.Empty #></h2>
-</blockquote>
-<!--
-    * ng-app <#=        Model.ViewDataTypeName ?? String.Empty #>App
-    * ng-controller <#=        Model.ViewDataTypeName ?? String.Empty #>Ctrl
-    * Single Page Application for CRUD operations on <#=        Model.ViewDataTypeName ?? String.Empty #>
--->
-<div data-ng-app="<#=        Model.ViewDataTypeName ?? String.Empty #>App" data-ng-controller="<#=        Model.ViewDataTypeName ?? String.Empty #>Ctrl as self" class="container">
-    <!-- 
-        * Create area of SPA
-    -->
-    <div class="row">
-        <div class="col-md-12">
-            <strong class="error">{{ self.error }}</strong>
-            <p data-ng-hide="addMode"><a data-ng-click="self.toggleAdd()" href="javascript:;" class="btn btn-success btn-lg">Add New <#=        Model.ViewDataTypeName ?? String.Empty #></a></p>
-
-            <!--
-                * form add<#=        Model.ViewDataTypeName ?? String.Empty #>
-                * Form for inserting <#=        Model.ViewDataTypeName ?? String.Empty #> Records
-            -->
-            <form name="add<#=        Model.ViewDataTypeName ?? String.Empty #>" data-ng-show="self.addMode" novalidate ng-submit="self.add()">
-<#
-    foreach (RelatedEntityInfo relation in ParentRelations) {
-#>
-<div class="editor-label">
-    <#=            relation.RelationName #>
-</div>
-<div class="editor-field">
-    @Html.DropDownListFor(model => model.<#=            relation.RelationProperty.Name #>, ((IEnumerable<<#=            relation.RelatedEntityType.FullName #>>)ViewBag.Possible<#=            relation.RelationNamePlural #>).Select(option => new SelectListItem {
-        Text = <#=            GetValueExpression("option", relation.RelatedEntityType) #>, 
-        Value = option.<#=            relation.RelatedEntityPrimaryKeyName #>.ToString(),
-        Selected = (Model != null) && (option.<#=            relation.RelatedEntityPrimaryKeyName #> == Model.<#=            relation.RelationProperty.Name #>)
-    }), "Choose...")
-    @Html.ValidationMessageFor(model => model.<#=            relation.RelationProperty.Name #>)
-</div>
-<#
-    }
-#>
-
-                
-<#
-foreach (ModelProperty property in GetModelProperties(Model.ViewDataType, false)) {
-
-    if (!property.IsPrimaryKey && !property.IsForeignKey && !property.IsReadOnly && property.Name != "CreatedBy" && property.Name != "UpdatedBy" && property.Name != "CreatedDate" && property.Name != "UpdatedDate" && property.Name != "IsDeleted" && property.Name != "Comp_Code" && property.Name!="Off_Code") {
-#>
-
-	<# 
-	if(property.Type.UnderlyingTypeIs<bool>())
-	{#>
-	   <div class="form-group">
-          <label for="<#= property.Name #>" class="col-sm-3 control-label"><#= property.Name #> :</label>
-            <div class="">
-            <input type="checkbox" class="form-control" name="<#= property.Name #>"  data-ng-model="self.new<#= Model.ViewDataTypeName ?? String.Empty #>.<#= property.Name #>" />
-         </div>
-       </div>
-	<# }
-            else if(property.Type.UnderlyingTypeIs<string>()) {
-	#>
-				<div class="form-group">
-                    <label for="<#=                    property.Name #>" class="col-sm-3 control-label"><#=                    property.Name #> :</label>
-                    <div class="">
-                        <input type="text" class="form-control" name="<#=                    property.Name #>" placeholder="Please Enter <#=                    property.Name #>" data-ng-model="self.new<#=                    Model.ViewDataTypeName ?? String.Empty #>.<#=                    property.Name #>" ng-minlength=3 ng-maxlength=20 ng-pattern="" ng-required="true" autocomplete="off"/>
-						<div class="error" 
-							ng-show="add<#=                    Model.ViewDataTypeName ?? String.Empty #>.<#=                    property.Name #>.$dirty && add<#=                    Model.ViewDataTypeName ?? String.Empty #>.<#=                    property.Name #>.$invalid">
-							<small class="error" 
-								ng-show="add<#=                    Model.ViewDataTypeName ?? String.Empty #>.<#=                    property.Name #>.$error.required">
-									<#=                    property.Name #> is required.
-							</small>
-							<small class="error" 
-								ng-show="add<#=                    Model.ViewDataTypeName ?? String.Empty #>.<#=                    property.Name #>.$error.minlength">
-									<#=                    property.Name #> is required to be at least 3 characters
-							</small>
-							<small class="error" 
-								ng-show="add<#=                    Model.ViewDataTypeName ?? String.Empty #>.<#=                    property.Name #>.$error.maxlength">
-									<#=                    property.Name #> cannot be longer than 20 characters
-							</small>
-							<small class="error" 
-								ng-show="add<#=                    Model.ViewDataTypeName ?? String.Empty #>.<#=                    property.Name #>.$error.pattern">
-									<#=                    property.Name #> pattern should be 
-							</small>
-						</div>
-                    </div>
-                </div>
-<#
-            }else if(property.Type.UnderlyingTypeIs<decimal>() || property.Type.UnderlyingTypeIs<int>() || property.Type.UnderlyingTypeIs<float>()){ #>
-	 
-	 <div class="form-group">
-                    <label for="<#=                    property.Name #>" class="col-sm-3 control-label"><#=                    property.Name #> :</label>
-                    <div class="">
-                        <input type="text" class="form-control" name="<#=                    property.Name #>" placeholder="Please Enter <#=                    property.Name #>" data-ng-model="self.new<#=                    Model.ViewDataTypeName ?? String.Empty #>.<#=                    property.Name #>"  ng-maxlength=20  ng-required="true" autocomplete="off"/>
-						<div class="error" 
-							ng-show="add<#=                    Model.ViewDataTypeName ?? String.Empty #>.<#=                    property.Name #>.$dirty && add<#=                    Model.ViewDataTypeName ?? String.Empty #>.<#=                    property.Name #>.$invalid">
-							<small class="error" 
-								ng-show="add<#=                    Model.ViewDataTypeName ?? String.Empty #>.<#=                    property.Name #>.$error.required">
-									<#=                    property.Name #> is required.
-							</small>
-							<small class="error" 
-								ng-show="add<#=                    Model.ViewDataTypeName ?? String.Empty #>.<#=                    property.Name #>.$error.maxlength">
-									<#=                    property.Name #> cannot be longer than 20 characters
-							</small>
-							
-						</div>
-                    </div>
-                </div>
-	
-	 <#            }
-        }
-    }
-#>
-
-				<br />
-                <div class="form-group">
-                    <div class="col-sm-offset-2 ">
-					<button type="submit" value="Add" class="btn btn-info" ng-disabled="add<#=        Model.ViewDataTypeName ?? String.Empty #>.$invalid" >Add</button>
-                        <input type="button" value="Cancel" data-ng-click="self.toggleAdd()" class="btn btn-info" />
-                    </div>
-                </div>
-                <br />
-			</form>
-		</div>
-	</div>
-
-	<!--
-        * Get <#=        Model.ViewDataTypeName ?? String.Empty #>s
-    -->
-    <div class="row">
-        <div class="col-lg-6">
-              <button class="btn btn-success" type="button" ng-click="self.get<#=        Model.ViewDataTypeName ?? String.Empty #>s()">Get <#=        Model.ViewDataTypeName ?? String.Empty #>s</button>
+<div class="portlet light bordered">
+    <div class="portlet-title">
+        <div class="caption font-red-sunglo">
+            <i class="icon-settings font-red-sunglo"></i>
+            <span class="caption-subject bold uppercase">Employee </span>
         </div>
     </div>
-
-	<!--
-        * Edit, Delete and Display Area of SPA
-    -->
-    <div class="row" data-ng-show="self.display">
-        <div class="col-md-12">
-            <br />
-            <div class="panel panel-default">
-                <!-- /.panel-heading -->
-                <div class="panel-body">
-                    <div class="table-responsive">
-                        <table>
-						<thead>
-                        <tr>
-						<#
-    foreach (ModelProperty property in GetModelProperties(Model.ViewDataType, false)) {
-        if (!property.IsPrimaryKey && !property.IsForeignKey && !property.IsReadOnly && property.Name != "CreatedBy" && property.Name != "UpdatedBy" && property.Name != "CreatedDate" && property.Name != "UpdatedDate" && property.Name != "IsDeleted" && property.Name != "Comp_Code" && property.Name!="Off_Code") {
+	<div class="portlet-body form">
+            <table datatable="ng" dt-options="vm.dtOptions" class="cell-border">
+                <thead>
+                    <tr>
+                       <# foreach (ModelProperty property in GetModelProperties(Model.ViewDataType, false)) {
+							if (!property.IsPrimaryKey && !property.IsForeignKey && !property.IsReadOnly && 
+								property.Name != "CreatedBy" && property.Name != "UpdatedBy" && 
+								property.Name != "CreatedDate" && property.Name != "UpdatedDate" && 
+								property.Name != "IsDeleted" && property.Name != "Comp_Code" && property.Name!="Off_Code") {
 						#>
-							<th><#=                property.Name #></th>
+							<th><#= property.Name #></th>
 							<#
         }
     }
 						#>
-						<th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody data-ng-repeat="<#=        Model.ViewDataTypeName ?? String.Empty #> in self.<#=        Model.ViewDataTypeName ?? String.Empty #>s">
-                        <tr>
-						<#
-    foreach (ModelProperty property in GetModelProperties(Model.ViewDataType, false)) {
-        if (!property.IsPrimaryKey && !property.IsForeignKey && !property.IsReadOnly && property.Name != "CreatedBy" && property.Name != "UpdatedBy" && property.Name != "CreatedDate" && property.Name != "UpdatedDate" && property.Name != "IsDeleted" && property.Name != "Comp_Code" && property.Name!="Off_Code") {
-            var name = property.Name.ToString();
-            var propnewName = char.ToLower(name[0]) + name.Substring(1);
-            if(property.Name == "IsActive"){ 
-							#>  
-							<td>
-                                <input type="checkbox" data-ng-hide="self.<#=                    Model.ViewDataTypeName ?? String.Empty #>.editMode" data-ng-model="self.<#=                    Model.ViewDataTypeName ?? String.Empty #>.isActive" data-ng-disabled="true" />
-                                <input data-ng-show="self.<#=                    Model.ViewDataTypeName ?? String.Empty #>.editMode" type="checkbox" data-ng-model="self.<#=                    Model.ViewDataTypeName ?? String.Empty #>.isActive" />
-                            </td>  
-
-							<#            }else if(property.Type.UnderlyingTypeIs<bool>()) {#>
-							<td>
-								<input type="checkbox" data-ng-hide="self.<#=                    Model.ViewDataTypeName ?? String.Empty #>.editMode" data-ng-model="<#=                    Model.ViewDataTypeName ?? String.Empty #>.<#=                    propnewName	#>" data-ng-disabled="true" />
-                                <input data-ng-show="self.<#=                    Model.ViewDataTypeName ?? String.Empty #>.editMode" type="checkbox" data-ng-model="<#=                    Model.ViewDataTypeName ?? String.Empty #>.<#=                    propnewName	#>" />
-							</td>
-							<#            }
-            else{
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="row in vm.<#= Model.ViewDataTypeName ?? String.Empty #>">
+                        <# foreach (ModelProperty property in GetModelProperties(Model.ViewDataType, false)) {
+							if (!property.IsPrimaryKey && !property.IsForeignKey && !property.IsReadOnly && 
+								property.Name != "CreatedBy" && property.Name != "UpdatedBy" && 
+								property.Name != "CreatedDate" && property.Name != "UpdatedDate" && 
+								property.Name != "IsDeleted" && property.Name != "Comp_Code" && property.Name!="Off_Code") {
 						#>
-							<td>
-                                <strong data-ng-hide="self.<#=                    Model.ViewDataTypeName ?? String.Empty #>.editMode">{{ <#=                    Model.ViewDataTypeName ?? String.Empty #>.<#=                    propnewName	#> }}</strong>
-                                <input data-ng-show="self.<#=                    Model.ViewDataTypeName ?? String.Empty #>.editMode" type="text" data-ng-model="<#=                    Model.ViewDataTypeName ?? String.Empty #>.<#=                    propnewName #>" />
-                            </td>
+							<td>{{row.<#= property.Name #>}}</td>
 							<#
-            }
         }
     }
 						#>
-							<td>
-                                <p data-ng-hide="self.<#=        Model.ViewDataTypeName ?? String.Empty #>.editMode"><a data-ng-click="self.toggleEdit(<#=        Model.ViewDataTypeName ?? String.Empty #>)" href="javascript:;">Edit</a> | <a data-ng-click="self.delete<#=        Model.ViewDataTypeName ?? String.Empty #>(<#=        Model.ViewDataTypeName ?? String.Empty #>)" href="javascript:;">Delete</a></p>
-                                <p data-ng-show="self.<#=        Model.ViewDataTypeName ?? String.Empty #>.editMode"><a data-ng-click="self.save(<#=        Model.ViewDataTypeName ?? String.Empty #>)" href="javascript:;">Save</a> | <a data-ng-click="self.toggleEdit(<#=        Model.ViewDataTypeName ?? String.Empty #>)" href="javascript:;">Cancel</a></p>
-                            </td>
-						</tr>
-					</tbody>
-				</table>
-				<button class="btn btn-round" style="float:right" data-ng-click="self.toggleDisplay()">Hide</button>
-			</div>
-			</div>
-		 </div>                        
-	</div>
-	</div>
+                        <td>
+                            <a href="/Employees/Edit/{{person.Id}}" class="btn btn-icon-only yellow">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            |
+                            <a href="/Employees/Details/{{person.Id}}" class="btn btn-icon-only blue">
+                                <i class="fa fa-info"></i>
+                            </a>
+                            |
+                            <a href="#basic" class="btn btn-icon-only red" data-toggle="modal" ng-href="#basic{{person.Id}}">
+                                <i class="fa fa-trash-o"></i>
+                            </a>
+                            <div class="modal fade" id="basic{{person.Id}}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+
+                                            <h4 class="modal-title">Are you sure you want to delete?</h4>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <form name="EmployeeForm" ng-submit="EmployeeForm.$valid && vm.deleteEmployee(person.Id)" novalidate>
+                                                <p>
+                                                    <input type="submit" value="Delete" class="btn red" />
+                                                    <button type="button" class="btn default" data-dismiss="modal">Close</button>
+                                                </p>
+
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <script src="~/Content/vendor/datatables-tabletools/js/dataTables.tableTools.js"></script>
+            <script src="~/Content/dist/plugins/tabletools/angular-datatables.tabletools.js"></script>
+        <script src="~/Scripts/app/EmployeeAngularController.js"></script>
+    </div>
 </div>
-
 <script src="~/Scripts/app/<#=        Model.ViewDataTypeName ?? String.Empty #>AngularController.js"></script>
 <#+
     // Describes the information about a property on the model

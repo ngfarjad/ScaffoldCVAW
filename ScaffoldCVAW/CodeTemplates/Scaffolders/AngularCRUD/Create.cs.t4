@@ -36,26 +36,26 @@ if (!String.IsNullOrEmpty(Model.Layout)) {
 <div class="portlet light bordered">
     <div class="portlet-title">
         <div class="caption font-red-sunglo">
-            <i class="icon-settings font-red-sunglo"></i>
+            <i class="fa fa-plus-square font-red-sunglo"></i>
             <span class="caption-subject bold uppercase"> Create <#= Model.ViewDataTypeName ?? String.Empty #> </span>
         </div>
-        
     </div>
     <div class="portlet-body form">
-@using (Html.BeginForm()) {
-    @Html.ValidationSummary(true)
-    
-		 <div class="form-body">
-		@Html.Partial("_CreateOrEdit", Model)
-
-        <div class="input-group">
-            <input type="submit" value="Create" class="btn blue"/>
-			@Html.ActionLink("Back to List", "Index", null, new { @class = "btn green" })
-        </div>
-    </div>
-}
-
-</div>
+		<form name="<#= Model.ViewDataTypeName ?? String.Empty #>Form" ng-submit="<#= Model.ViewDataTypeName ?? String.Empty #>Form.$valid && vm.save<#= Model.ViewDataTypeName ?? String.Empty #>()" novalidate>
+			<div class="form-body">
+				@Html.Partial("_CreateOrEdit")
+				<div class="clearfix"></div>
+                @Html.Partial("_Detail")
+				<div class="form-actions noborder">
+					<input type="submit" value="Save" class="btn blue" />
+					<p ng-click="vm.addDetail();" class="btn blue">
+					    Add Detail
+				    </p>
+			        @Html.ActionLink("Back to List", "Index", null, new { @class = "btn green" })
+				</div>
+			</div>
+		</form>
+	</div>
 </div>
 
 
