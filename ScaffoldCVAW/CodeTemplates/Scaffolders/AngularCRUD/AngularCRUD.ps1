@@ -113,26 +113,138 @@ Add-ProjectItemViaTemplate $outputPath -Template $templateName -Model @{
 	RelatedEntities = $relatedEntities;
 } -SuccessMessage "Added ASP .NET Mvc Controller {0}" -TemplateFolders $TemplateFolders -Project $Project -CodeLanguage $CodeLanguage -Force:$overwriteController
 
-$viewName = "Create"
-$finalPath = [string](Get-PluralizedWord $Controller)
-Scaffold $ViewScaffolder -Controller $finalPath -ViewName $viewName -ModelType $ModelType -Template "Create" -Area $Area -Layout $Layout -SectionNames $SectionNames -PrimarySectionName $PrimarySectionName -ReferenceScriptLibraries:$ReferenceScriptLibraries -Project $Project -CodeLanguage $CodeLanguage -OverrideTemplateFolders $TemplateFolders -Force:$Force
+# Ensure we have a controller name, plus a model type if specified
+if ($ModelType) {
+	$foundModelType = Get-ProjectType $ModelType -Project $Project
+	if (!$foundModelType) { return }
+	$primaryKeyName = [string](Get-PrimaryKey $foundModelType.FullName -Project $Project)
+}
 
-$viewName = "_CreateOrEdit"
-$finalPath = [string](Get-PluralizedWord $Controller)
-Scaffold $ViewScaffolder -Controller $finalPath -ViewName $viewName -ModelType $ModelType -Template "_CreateOrEdit" -Area $Area -Layout $Layout -SectionNames $SectionNames -PrimarySectionName $PrimarySectionName -ReferenceScriptLibraries:$ReferenceScriptLibraries -Project $Project -CodeLanguage $CodeLanguage -OverrideTemplateFolders $TemplateFolders -Force:$Force
+# Decide where to put the output
+$PluralController = [string](Get-PluralizedWord $Controller)
+$outputFolderName = Join-Path Views $PluralController
+if ($Area) {
+	# We don't create areas here, so just ensure that if you specify one, it already exists
+	$areaPath = Join-Path Areas $Area
+	if (-not (Get-ProjectItem $areaPath -Project $Project)) {
+		Write-Error "Cannot find area '$Area'. Make sure it exists already."
+		return
+	}
+	$outputFolderName = Join-Path $areaPath $outputFolderName
+}
 
-$viewName = "Edit"
-$finalPath = [string](Get-PluralizedWord $Controller)
-Scaffold $ViewScaffolder -Controller $finalPath -ViewName $viewName -ModelType $ModelType -Template "Edit" -Area $Area -Layout $Layout -SectionNames $SectionNames -PrimarySectionName $PrimarySectionName -ReferenceScriptLibraries:$ReferenceScriptLibraries -Project $Project -CodeLanguage $CodeLanguage -OverrideTemplateFolders $TemplateFolders -Force:$Force
 
-$viewName = "Index"
-$finalPath = [string](Get-PluralizedWord $Controller)
-Scaffold $ViewScaffolder -Controller $finalPath -ViewName $viewName -ModelType $ModelType -Template "Index" -Area $Area -Layout $Layout -SectionNames $SectionNames -PrimarySectionName $PrimarySectionName -ReferenceScriptLibraries:$ReferenceScriptLibraries -Project $Project -CodeLanguage $CodeLanguage -OverrideTemplateFolders $TemplateFolders -Force:$Force
+if ($foundModelType) { $relatedEntities = [Array](Get-RelatedEntities $foundModelType.FullName -Project $project) }
+if (!$relatedEntities) { $relatedEntities = @() }
 
-$viewName = "_Detail"
-$finalPath = [string](Get-PluralizedWord $Controller)
-Scaffold $ViewScaffolder -Controller $finalPath -ViewName $viewName -ModelType $ChildRelation -Template "_Detail" -Area $Area -Layout $Layout -SectionNames $SectionNames -PrimarySectionName $PrimarySectionName -ReferenceScriptLibraries:$ReferenceScriptLibraries -Project $Project -CodeLanguage $CodeLanguage -OverrideTemplateFolders $TemplateFolders -Force:$Force
+# _CreateOrEdit Template
+$ViewName = "_CreateOrEdit"
+$outputPath = Join-Path $outputFolderName $ViewName
 
+Add-ProjectItemViaTemplate $outputPath -Template "_CreateOrEdit" -Model @{
+	IsContentPage = [bool]$Layout;
+	Layout = $Layout;
+	SectionNames = $SectionNames;
+	PrimarySectionName = $PrimarySectionName;
+	ReferenceScriptLibraries = $ReferenceScriptLibraries.ToBool();
+	ViewName = $ViewName;
+	PrimaryKeyName = $primaryKeyName;
+	ViewDataType = [MarshalByRefObject]$foundModelType;
+	ViewDataTypeName = $foundModelType.Name;
+	RelatedEntities = $relatedEntities;
+} -SuccessMessage "Added $ViewName view at '{0}'" -TemplateFolders $TemplateFolders -Project $Project -CodeLanguage $CodeLanguage -Force:$Force
+
+# _Detail Template
+$ViewName = "_Detail"
+$outputPath = Join-Path $outputFolderName $ViewName
+
+Add-ProjectItemViaTemplate $outputPath -Template "_Detail" -Model @{
+	IsContentPage = [bool]$Layout;
+	Layout = $Layout;
+	SectionNames = $SectionNames;
+	PrimarySectionName = $PrimarySectionName;
+	ReferenceScriptLibraries = $ReferenceScriptLibraries.ToBool();
+	ViewName = $ViewName;
+	PrimaryKeyName = $primaryKeyName;
+	PluralViewDataType = $modelTypePluralized;
+	ViewDataType = [MarshalByRefObject]$foundModelType;
+	ViewDataTypeName = $foundModelType.Name;
+	RelatedEntities = $relatedEntities;
+	ChildRelationPlural = Get-PluralizedWord $ChildRelation;
+} -SuccessMessage "Added $ViewName view at '{0}'" -TemplateFolders $TemplateFolders -Project $Project -CodeLanguage $CodeLanguage -Force:$Force
+
+
+# Create Template
+$ViewName = "Create"
+$outputPath = Join-Path $outputFolderName $ViewName
+
+Add-ProjectItemViaTemplate $outputPath -Template "Create" -Model @{
+	IsContentPage = [bool]$Layout;
+	Layout = $Layout;
+	SectionNames = $SectionNames;
+	PrimarySectionName = $PrimarySectionName;
+	ReferenceScriptLibraries = $ReferenceScriptLibraries.ToBool();
+	ViewName = $ViewName;
+	PrimaryKeyName = $primaryKeyName;
+	ViewDataType = [MarshalByRefObject]$foundModelType;
+	ViewDataTypeName = $foundModelType.Name;
+	RelatedEntities = $relatedEntities;
+} -SuccessMessage "Added $ViewName view at '{0}'" -TemplateFolders $TemplateFolders -Project $Project -CodeLanguage $CodeLanguage -Force:$Force
+
+# Edit Template
+$ViewName = "Edit"
+$outputPath = Join-Path $outputFolderName $ViewName
+
+Add-ProjectItemViaTemplate $outputPath -Template "Edit" -Model @{
+	IsContentPage = [bool]$Layout;
+	Layout = $Layout;
+	SectionNames = $SectionNames;
+	PrimarySectionName = $PrimarySectionName;
+	ReferenceScriptLibraries = $ReferenceScriptLibraries.ToBool();
+	ViewName = $ViewName;
+	PrimaryKeyName = $primaryKeyName;
+	ViewDataType = [MarshalByRefObject]$foundModelType;
+	ViewDataTypeName = $foundModelType.Name;
+	RelatedEntities = $relatedEntities;
+} -SuccessMessage "Added $ViewName view at '{0}'" -TemplateFolders $TemplateFolders -Project $Project -CodeLanguage $CodeLanguage -Force:$Force
+
+
+# Index Template
+$ViewName = "Index"
+$outputPath = Join-Path $outputFolderName $ViewName
+
+Add-ProjectItemViaTemplate $outputPath -Template "Index" -Model @{
+	IsContentPage = [bool]$Layout;
+	Layout = $Layout;
+	SectionNames = $SectionNames;
+	PrimarySectionName = $PrimarySectionName;
+	ReferenceScriptLibraries = $ReferenceScriptLibraries.ToBool();
+	ViewName = $ViewName;
+	PrimaryKeyName = $primaryKeyName;
+	PluralViewDataType = $modelTypePluralized;
+	ViewDataType = [MarshalByRefObject]$foundModelType;
+	ViewDataTypeName = $foundModelType.Name;
+	RelatedEntities = $relatedEntities;
+} -SuccessMessage "Added $ViewName view at '{0}'" -TemplateFolders $TemplateFolders -Project $Project -CodeLanguage $CodeLanguage -Force:$Force
+
+# Detail Template
+$ViewName = "Details"
+$outputPath = Join-Path $outputFolderName $ViewName
+Add-ProjectItemViaTemplate $outputPath -Template "Detail" -Model @{
+	IsContentPage = [bool]$Layout;
+	Layout = $Layout;
+	SectionNames = $SectionNames;
+	PrimarySectionName = $PrimarySectionName;
+	ReferenceScriptLibraries = $ReferenceScriptLibraries.ToBool();
+	ViewName = $ViewName;
+	PrimaryKeyName = $primaryKeyName;
+	PluralViewDataType = $modelTypePluralized;
+	ViewDataType = [MarshalByRefObject]$foundModelType;
+	ViewDataTypeName = $foundModelType.Name;
+	RelatedEntities = $relatedEntities;
+} -SuccessMessage "Added $ViewName view at '{0}'" -TemplateFolders $TemplateFolders -Project $Project -CodeLanguage $CodeLanguage -Force:$Force
+
+# AngularController Template
 $viewName = $Controller + "AngularController"
 $finalPath = "Scripts\app\" + $Controller + "AngularController"
 Add-ProjectItemViaTemplate $finalPath -Template "AngularJsController" -Model @{
@@ -145,11 +257,14 @@ Add-ProjectItemViaTemplate $finalPath -Template "AngularJsController" -Model @{
 	PrimaryKeyName = [string]$primaryKey;
 	ViewDataType = [MarshalByRefObject]$foundModelType;
 	ViewDataTypeName = $foundModelType.Name;
+	PluralViewDataType = $modelTypePluralized;
+	ChildRelationPlural = Get-PluralizedWord $ChildRelation;
 	RelatedEntities = $relatedEntities;
-
+	ParentDataType = (Get-PluralizedWord $foundModelType.Name);
 } -SuccessMessage "Added AngularJs Controller at {0}" `
 	-TemplateFolders $TemplateFolders -Project $Project -CodeLanguage $CodeLanguage -Force:$Force
 
+# Api Controller
 $finalPath = [string](Get-PluralizedWord $foundModelType.Name) + "ApiController"
 Add-ProjectItemViaTemplate "Controllers\$finalPath" -Template "Controller" -Model @{ 
 		Namespace = $defaultNamespace;  

@@ -70,7 +70,7 @@ class ModelProperty {
     public bool IsPrimaryKey { get; set; }
 	public bool IsForeignKey { get; set; }
 	public bool IsReadOnly { get; set; }
-}
+            }
 
 // Change this list to include any non-primitive types you think should be eligible to be edited using a textbox
 static Type[] bindableNonPrimitiveTypes = new[] {

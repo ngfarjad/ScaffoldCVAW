@@ -13,12 +13,11 @@
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Reflection" #>
 <#    var viewDataType = (EnvDTE.CodeType) Model.ViewDataType; #>
-<script src="~/Scripts/angular.js"></script>
-<div class="portlet light bordered">
+<div class="portlet light bordered" ng-init="vm.get<#= Model.PluralViewDataType ?? String.Empty #>()">
     <div class="portlet-title">
         <div class="caption font-red-sunglo">
             <i class="icon-settings font-red-sunglo"></i>
-            <span class="caption-subject bold uppercase">Employee </span>
+            <span class="caption-subject bold uppercase"><#= Model.ViewDataTypeName ?? String.Empty #> </span>
         </div>
     </div>
 	<div class="portlet-body form">
@@ -40,7 +39,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="row in vm.<#= Model.ViewDataTypeName ?? String.Empty #>">
+                    <tr ng-repeat="row in vm.<#= Model.PluralViewDataType ?? String.Empty #>">
                         <# foreach (ModelProperty property in GetModelProperties(Model.ViewDataType, false)) {
 							if (!property.IsPrimaryKey && !property.IsForeignKey && !property.IsReadOnly && 
 								property.Name != "CreatedBy" && property.Name != "UpdatedBy" && 
@@ -53,18 +52,18 @@
     }
 						#>
                         <td>
-                            <a href="/Employees/Edit/{{person.Id}}" class="btn btn-icon-only yellow">
+                            <a href="/<#= Model.PluralViewDataType ?? String.Empty #>/Edit/{{row.Id}}" class="btn btn-icon-only yellow">
                                 <i class="fa fa-edit"></i>
                             </a>
                             |
-                            <a href="/Employees/Details/{{person.Id}}" class="btn btn-icon-only blue">
+                            <a href="/<#= Model.PluralViewDataType ?? String.Empty #>/Details/{{row.Id}}" class="btn btn-icon-only blue">
                                 <i class="fa fa-info"></i>
                             </a>
                             |
-                            <a href="#basic" class="btn btn-icon-only red" data-toggle="modal" ng-href="#basic{{person.Id}}">
+                            <a href="#basic" class="btn btn-icon-only red" data-toggle="modal" ng-href="#basic{{row.Id}}">
                                 <i class="fa fa-trash-o"></i>
                             </a>
-                            <div class="modal fade" id="basic{{person.Id}}" tabindex="-1" aria-hidden="true">
+                            <div class="modal fade" id="basic{{row.Id}}" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -72,12 +71,11 @@
                                             <h4 class="modal-title">Are you sure you want to delete?</h4>
                                         </div>
                                         <div class="modal-footer">
-                                            <form name="EmployeeForm" ng-submit="EmployeeForm.$valid && vm.deleteEmployee(person.Id)" novalidate>
+                                            <form name="<#= Model.ViewDataTypeName ?? String.Empty #>Form" ng-submit="<#= Model.ViewDataTypeName ?? String.Empty #>Form.$valid && vm.delete<#= Model.ViewDataTypeName ?? String.Empty #>(row.Id)" novalidate>
                                                 <p>
                                                     <input type="submit" value="Delete" class="btn red" />
                                                     <button type="button" class="btn default" data-dismiss="modal">Close</button>
                                                 </p>
-
                                             </form>
                                         </div>
                                     </div>
@@ -87,12 +85,9 @@
                     </tr>
                 </tbody>
             </table>
-            <script src="~/Content/vendor/datatables-tabletools/js/dataTables.tableTools.js"></script>
-            <script src="~/Content/dist/plugins/tabletools/angular-datatables.tabletools.js"></script>
-        <script src="~/Scripts/app/EmployeeAngularController.js"></script>
     </div>
 </div>
-<script src="~/Scripts/app/<#=        Model.ViewDataTypeName ?? String.Empty #>AngularController.js"></script>
+<script src="~/Scripts/app/<#= Model.ViewDataTypeName ?? String.Empty #>AngularController.js"></script>
 <#+
     // Describes the information about a property on the model
     class ModelProperty {

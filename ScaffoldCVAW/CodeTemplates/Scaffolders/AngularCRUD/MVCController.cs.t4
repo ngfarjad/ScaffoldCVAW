@@ -44,7 +44,7 @@ namespace <#= Model.ControllerNamespace #>
             return View();
         }
 
-        public ActionResult Detail(int id)
+        public ActionResult Details(int id)
         {
             ViewBag.Id = id;
             return View();

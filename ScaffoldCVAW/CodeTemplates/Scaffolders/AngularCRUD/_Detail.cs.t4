@@ -21,14 +21,14 @@
 <div ng-show="vm.DisplayDetail">
     <div class="caption font-red-sunglo">
         <i class="fa fa-align-justify font-red-sunglo"></i>
-        <span class="caption-subject bold uppercase"> <#= viewDataType.FullName #> </span>
+        <span class="caption-subject bold uppercase"><#= Model.ViewDataTypeName ?? String.Empty #> </span>
     </div>
 </div>
-<div ng-repeat="detail in vm.<#= Model.ViewDataTypeName ?? String.Empty #>">
+<div ng-repeat="detail in vm.<#= Model.ViewDataTypeName ?? String.Empty #>.<#= Model.ChildRelationPlural ?? String.Empty #>">
 <#
-foreach (ModelProperty property in GetModelProperties(Model.ViewDataType, false)) {
-    if (!property.IsPrimaryKey && !property.IsForeignKey && !property.IsReadOnly) {
-		if (property.Type.UnderlyingTypeIs<bool>()) {
+    foreach (ModelProperty property in GetModelProperties(Model.ViewDataType, false)) {
+        if (!property.IsPrimaryKey && !property.IsForeignKey && !property.IsReadOnly) {
+            if (property.Type.UnderlyingTypeIs<bool>()) {
 #>
 <div class="form-group form-md-checkboxes">
     <label><#= property.Name #> </label>
@@ -44,16 +44,17 @@ foreach (ModelProperty property in GetModelProperties(Model.ViewDataType, false)
     </div>
 </div>
 <# 
-} else {
- #>
+            } else {
+#>
  <div class="form-group form-md-line-input">
 	<input type="text" name="<#= property.Name #>" ng-model="detail.<#= property.Name #>" class="form-control"/>
 	@Html.LabelFor(model => model.<#= property.Name #>)
 	<span class="help-block">Enter <#= property.Name #></span>
 </div>
 <#
+            }
+        }
     }
-}
 #>
 </div>
 <#
@@ -71,42 +72,42 @@ foreach (RelatedEntityInfo relation in ParentRelations) {
 <#+
 // Describes the information about a property on the model
 class ModelProperty {
-    public string Name { get; set; }
-    public string ValueExpression { get; set; }
+	public string Name { get; set; }
+	public string ValueExpression { get; set; }
 	public EnvDTE.CodeTypeRef Type { get; set; }
-    public bool IsPrimaryKey { get; set; }
+	public bool IsPrimaryKey { get; set; }
 	public bool IsForeignKey { get; set; }
 	public bool IsReadOnly { get; set; }
 }
 
 // Change this list to include any non-primitive types you think should be eligible to be edited using a textbox
 static Type[] bindableNonPrimitiveTypes = new[] {
-    typeof(string),
-    typeof(decimal),
-    typeof(Guid),
-    typeof(DateTime),
-    typeof(DateTimeOffset),
-    typeof(TimeSpan),
+	typeof(string),
+	typeof(decimal),
+	typeof(Guid),
+	typeof(DateTime),
+	typeof(DateTimeOffset),
+	typeof(TimeSpan),
 };
 
 // Call this to get the list of properties in the model. Change this to modify or add your
 // own default formatting for display values.
 List<ModelProperty> GetModelProperties(EnvDTE.CodeType typeInfo, bool includeUnbindableProperties) {
-    List<ModelProperty> results = GetEligibleProperties(typeInfo, includeUnbindableProperties);
-    
-    foreach (ModelProperty prop in results) {
-        if (prop.Type.UnderlyingTypeIs<double>() || prop.Type.UnderlyingTypeIs<decimal>()) {
-            prop.ValueExpression = "String.Format(\"{0:F}\", " + prop.ValueExpression + ")";
-        }
-        else if (prop.Type.UnderlyingTypeIs<DateTime>()) {
-            prop.ValueExpression = "String.Format(\"{0:g}\", " + prop.ValueExpression + ")";
-        }
+	List<ModelProperty> results = GetEligibleProperties(typeInfo, includeUnbindableProperties);
+	
+	foreach (ModelProperty prop in results) {
+		if (prop.Type.UnderlyingTypeIs<double>() || prop.Type.UnderlyingTypeIs<decimal>()) {
+			prop.ValueExpression = "String.Format(\"{0:F}\", " + prop.ValueExpression + ")";
+		}
+		else if (prop.Type.UnderlyingTypeIs<DateTime>()) {
+			prop.ValueExpression = "String.Format(\"{0:g}\", " + prop.ValueExpression + ")";
+		}
 		else if (!IsBindableType(prop.Type)) {
 			prop.ValueExpression = GetValueExpression("Model." + prop.Name, (EnvDTE.CodeType)prop.Type.CodeType);
 		}
-    }
+	}
 
-    return results;
+	return results;
 }
 
 // Change this list to include the names of properties that should be selected to represent an entity as a single string
@@ -125,7 +126,7 @@ string GetValueExpression(string propertyExpression, EnvDTE.CodeType propertyTyp
 
 // Helper
 List<ModelProperty> GetEligibleProperties(EnvDTE.CodeType typeInfo, bool includeUnbindableProperties) {
-    List<ModelProperty> results = new List<ModelProperty>();
+	List<ModelProperty> results = new List<ModelProperty>();
 	if (typeInfo != null) {
 		foreach (var prop in typeInfo.VisibleMembers().OfType<EnvDTE.CodeProperty>()) {
 			if (prop.IsReadable() && !prop.HasIndexParameters() && (includeUnbindableProperties || IsBindableType(prop.Type))) {
@@ -141,7 +142,7 @@ List<ModelProperty> GetEligibleProperties(EnvDTE.CodeType typeInfo, bool include
 		}
 	}
 
-    return results;
+	return results;
 }
 
 IEnumerable<RelatedEntityInfo> ParentRelations {
@@ -150,6 +151,7 @@ IEnumerable<RelatedEntityInfo> ParentRelations {
 
 // Helper
 bool IsBindableType(EnvDTE.CodeTypeRef type) {
-    return type.UnderlyingIsPrimitive() || bindableNonPrimitiveTypes.Any(x => type.UnderlyingTypeIs(x));
+	return type.UnderlyingIsPrimitive() || bindableNonPrimitiveTypes.Any(x => type.UnderlyingTypeIs(x));
 }
+
 #>

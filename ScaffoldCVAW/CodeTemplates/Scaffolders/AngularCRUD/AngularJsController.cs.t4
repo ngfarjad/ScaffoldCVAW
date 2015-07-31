@@ -18,129 +18,87 @@
  * @module <#= Model.ViewDataTypeName ?? String.Empty #>App
  * @name <#= Model.ViewDataTypeName ?? String.Empty #>AppDocumentation
  * @description AngularJS controller for <#= Model.ViewDataTypeName ?? String.Empty #> View
- * @param {self} angularJS scope
+ * @param {vm} angularJS scope
  * @param {$http} required for http services
  *
  * ###Additional information
  * This is the <#= Model.ViewDataTypeName ?? String.Empty #>App module for model view binding (<#= Model.ViewDataTypeName ?? String.Empty #>)
  */
-angular.module('<#= Model.ViewDataTypeName ?? String.Empty #>App', [])
-	.controller('<#= Model.ViewDataTypeName ?? String.Empty #>Ctrl', function ($http) {
-		/**
-		* @fields <#= Model.ViewDataTypeName ?? String.Empty #>s
-		* Empty objects for storing data retrieved from http request to WebApi
-		*/
+angular.module('<#= Model.ViewDataTypeName ?? String.Empty #>', ['datatables', 'datatables.tabletools'])
+	.controller('<#= Model.ViewDataTypeName ?? String.Empty #>Controller', <#= Model.ViewDataTypeName ?? String.Empty #>Controller);
 
-		var self = this;
-		self.<#= Model.ViewDataTypeName ?? String.Empty #>s = [];
 
-		/**
-		* Flags for rendering differnt sections of Page
-		* Required for making the Single Page Application
-		*/
-		self.loading = false;
-		self.addMode = false;
-		self.display = false;
+function <#= Model.ViewDataTypeName ?? String.Empty #>Controller($http, DTOptionsBuilder) {
+	
 
-		/**
-		* This method retrieves <#= Model.ViewDataTypeName ?? String.Empty #> record by calling GET http service to WebApi.
-		* It only recieves one specific <#= Model.ViewDataTypeName ?? String.Empty #> record which was searched.
-		* It also gets other objects related to that <#= Model.ViewDataTypeName ?? String.Empty #> record.
-		* @method get<#= Model.ViewDataTypeName ?? String.Empty #>s
-		* @param no parameters
-		*/
-		self.get<#= Model.ViewDataTypeName ?? String.Empty #>s = function () {
-				$http.get('/api/<#= Model.ViewDataTypeName ?? String.Empty #>sApi/').success(function (data) {
-					self.<#= Model.ViewDataTypeName ?? String.Empty #>s = data;
-					self.loading = false;
-					self.display = true;
+		var vm = this;
+        // Single 
+		vm.<#= Model.ViewDataTypeName ?? String.Empty #> = {};
+
+        // Single List
+        vm.<#= Model.ViewDataTypeName ?? String.Empty #>.<#= Model.ChildRelationPlural ?? String.Empty #> = [];
+
+        // List Of all
+        vm.<#= Model.PluralViewDataType ?? String.Empty #> = [];
+
+        vm.dtOptions = DTOptionsBuilder
+            .fromSource(vm.<#= Model.PluralViewDataType ?? String.Empty #>)
+            // Add Table tools compatibility
+            .withTableTools('/Content/vendor/datatables-tabletools/swf/copy_csv_xls_pdf.swf')
+            .withTableToolsButtons([
+                'copy',
+                'print', {
+                    'sExtends': 'collection',
+                    'sButtonText': 'Save',
+                    'aButtons': ['csv', 'xls', 'pdf']
+                }
+            ]);
+		
+		vm.get<#= Model.PluralViewDataType ?? String.Empty #> = function () {
+				$http.get('/api/<#= Model.PluralViewDataType ?? String.Empty #>Api/').success(function (data) {
+					vm.<#= Model.PluralViewDataType ?? String.Empty #> = data;
 				}).error(function () {
-					self.error = "An Error has occured while loading posts!";
-					self.loading = false;
-					self.display = false;
 				});
 		};
+        vm.get<#= Model.ViewDataTypeName ?? String.Empty #>ById = function (id) {
+	        $http.get('/api/<#= Model.PluralViewDataType ?? String.Empty #>Api/' + id).success(function (data) {
+	            vm.<#= Model.ViewDataTypeName ?? String.Empty #> = data;
+	            if (!vm.DisplayDetail) {
+	                vm.DisplayDetail = true;
+	            }
+	        }).error(function () {
+	        });
+	    };
+        vm.AddDetail = function () {
+	        if (!vm.DisplayDetail) {
+	            vm.DisplayDetail = true;
+	        }
+	        vm.<#= Model.ViewDataTypeName ?? String.Empty #>.<#= Model.ChildRelationPlural ?? String.Empty #>.push({});
+	    }
 
-		/**
-		* toggles edit view
-		* @method toggleEdit
-		*/
-		self.toggleEdit = function () {
-			self.<#= Model.ViewDataTypeName ?? String.Empty #>.editMode = !self.<#= Model.ViewDataTypeName ?? String.Empty #>.editMode;
-		};
+        vm.edit<#= Model.ViewDataTypeName ?? String.Empty #> = function () {
+	        $http.post('/api/<#= Model.PluralViewDataType ?? String.Empty #>Api/' + vm.<#= Model.ViewDataTypeName ?? String.Empty #>.Id, vm.<#= Model.ViewDataTypeName ?? String.Empty #>).success(function (data) {
+	            vm.Employee = {};
+	        }).error(function (data) {
+	        });
+	    };
 
-		/**
-		* toggles add view
-		* @method toggleAdd
-		*/
-		self.toggleAdd = function () {
-			self.addMode = !self.addMode;
-		};
-
-		 /**
-		* toggles hide table
-		* @method toggleDisplay
-		*/
-		self.toggleDisplay = function () {
-			 self.display = !self.display;
-		};
-
-		/**
-		* This method inserts <#= Model.ViewDataTypeName ?? String.Empty #> record by sending POST http service to WebApi.
-		* @method add
-		* @param no parameters
-		*/
-		self.add = function () {
-			self.loading = true;
-			$http.post('/api/<#= Model.ViewDataTypeName ?? String.Empty #>sApi/', this.new<#= Model.ViewDataTypeName ?? String.Empty #>).success(function (data) {
-				alert("Added Successfully!!");
-				self.addMode = false;
-				self.<#= Model.ViewDataTypeName ?? String.Empty #>s.push(data);
-				self.loading = false;
-				self.new<#= Model.ViewDataTypeName ?? String.Empty #> = null;
+	
+		vm.save<#= Model.ViewDataTypeName ?? String.Empty #> = function () {
+			$http.put('/api/<#= Model.PluralViewDataType ?? String.Empty #>Api/', vm.<#= Model.ViewDataTypeName ?? String.Empty #>).success(function (data) {
+                // Message
 			}).error(function (data) {
-				self.error = "An Error has occured while Adding <#= Model.ViewDataTypeName ?? String.Empty #>! " + data;
-				self.loading = false;
 			});
 		};
 
-		/**
-		* This method updates <#= Model.ViewDataTypeName ?? String.Empty #> record by sending PUT http service to WebApi.
-		* @method save
-		* @param no parameters
-		*/
-		self.save = function () {
-			self.loading = true;
-			var obj = this.<#= Model.ViewDataTypeName ?? String.Empty #>;
-			$http.put('/api/<#= Model.ViewDataTypeName ?? String.Empty #>sApi/' + obj.id, obj).success(function (data) {
-				alert("Saved Successfully !!");
-				obj.editMode = false;
-				self.loading = false;
+		
+		vm.delete<#= Model.ViewDataTypeName ?? String.Empty #> = function () {
+			$http.delete('/api/<<#= Model.PluralViewDataType ?? String.Empty #>Api/' + Id).success(function (data) {
+                // Function for delete
 			}).error(function (data) {
-				self.error = "An Error has occured while Saving <#= Model.ViewDataTypeName.ToLower() ?? String.Empty #>! " + data;
-				self.loading = false;
 			});
 		};
-
-		/**
-		* This method deletes <#= Model.ViewDataTypeName ?? String.Empty #> record by sending DELETE http service to WebApi.
-		* @method delete<#= Model.ViewDataTypeName ?? String.Empty #>
-		* @param no parameters
-		*/
-		self.delete<#= Model.ViewDataTypeName ?? String.Empty #> = function () {
-			self.loading = true;
-			var Id = this.<#= Model.ViewDataTypeName ?? String.Empty #>.id;
-			$http.delete('/api/<#= Model.ViewDataTypeName ?? String.Empty #>sApi/' + Id + '/').success(function (data) {
-				alert("Deleted Successfully!!");
-				self.<#= Model.ViewDataTypeName ?? String.Empty #>s = [];
-				self.display = false;
-				self.loading = false;
-			}).error(function (data) {
-				self.error = "An Error has occured while Saving <#= Model.ViewDataTypeName ?? String.Empty #>! " + data;
-				self.loading = false;
-			});
-		};
-	});
+	};
 
 
 <#+
