@@ -48,6 +48,7 @@ foreach (ModelProperty property in GetModelProperties(Model.ViewDataType, false)
 <#
     }
 }
+}
 #>
 <#
 foreach (RelatedEntityInfo relation in ParentRelations) {

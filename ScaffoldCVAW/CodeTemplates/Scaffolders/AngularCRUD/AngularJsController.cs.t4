@@ -32,69 +32,97 @@ function <#= Model.ViewDataTypeName ?? String.Empty #>Controller($http, DTOption
 	
 
 		var vm = this;
-        // Single 
+		// Single 
 		vm.<#= Model.ViewDataTypeName ?? String.Empty #> = {};
 
-        // Single List
-        vm.<#= Model.ViewDataTypeName ?? String.Empty #>.<#= Model.ChildRelationPlural ?? String.Empty #> = [];
+		// Single List
+		vm.<#= Model.ViewDataTypeName ?? String.Empty #>.<#= Model.ChildRelationPlural ?? String.Empty #> = [];
 
-        // List Of all
-        vm.<#= Model.PluralViewDataType ?? String.Empty #> = [];
+		// List Of all
+		vm.<#= Model.PluralViewDataType ?? String.Empty #> = [];
 
-        vm.dtOptions = DTOptionsBuilder
-            .fromSource(vm.<#= Model.PluralViewDataType ?? String.Empty #>)
-            // Add Table tools compatibility
-            .withTableTools('/Content/vendor/datatables-tabletools/swf/copy_csv_xls_pdf.swf')
-            .withTableToolsButtons([
-                'copy',
-                'print', {
-                    'sExtends': 'collection',
-                    'sButtonText': 'Save',
-                    'aButtons': ['csv', 'xls', 'pdf']
-                }
-            ]);
+		vm.dtOptions = DTOptionsBuilder
+			.fromSource(vm.<#= Model.PluralViewDataType ?? String.Empty #>)
+			// Add Table tools compatibility
+			.withTableTools('/Content/vendor/datatables-tabletools/swf/copy_csv_xls_pdf.swf')
+			.withTableToolsButtons([
+				'copy',
+				'print', {
+					'sExtends': 'collection',
+					'sButtonText': 'Save',
+					'aButtons': ['csv', 'xls', 'pdf']
+				}
+			]);
 		
+		<#
+			foreach (RelatedEntityInfo relation in ParentRelations) {
+		#>
+		vm.<#= relation.RelationNamePlural #> = [];
+		vm.get<#= relation.RelationNamePlural #> = function() {
+			$http.get('/api/<#= relation.RelationNamePlural #>Api/').success(function (data) {
+					vm.<#= relation.RelationNamePlural #> = data;
+				}).error(function () {
+				});
+		}
+		<#
+}
+#>
+
+		<#
+			foreach (RelatedEntityInfo relation in ChildParentRelations) {
+		#>
+		vm.<#= relation.RelationNamePlural #> = [];
+		vm.get<#= relation.RelationNamePlural #> = function() {
+			$http.get('/api/<#= relation.RelationNamePlural #>Api/').success(function (data) {
+					vm.<#= relation.RelationNamePlural #> = data;
+				}).error(function () {
+				});
+		}
+		<#
+}
+#>
+
 		vm.get<#= Model.PluralViewDataType ?? String.Empty #> = function () {
 				$http.get('/api/<#= Model.PluralViewDataType ?? String.Empty #>Api/').success(function (data) {
 					vm.<#= Model.PluralViewDataType ?? String.Empty #> = data;
 				}).error(function () {
 				});
 		};
-        vm.get<#= Model.ViewDataTypeName ?? String.Empty #>ById = function (id) {
-	        $http.get('/api/<#= Model.PluralViewDataType ?? String.Empty #>Api/' + id).success(function (data) {
-	            vm.<#= Model.ViewDataTypeName ?? String.Empty #> = data;
-	            if (!vm.DisplayDetail) {
-	                vm.DisplayDetail = true;
-	            }
-	        }).error(function () {
-	        });
-	    };
-        vm.AddDetail = function () {
-	        if (!vm.DisplayDetail) {
-	            vm.DisplayDetail = true;
-	        }
-	        vm.<#= Model.ViewDataTypeName ?? String.Empty #>.<#= Model.ChildRelationPlural ?? String.Empty #>.push({});
-	    }
+		vm.get<#= Model.ViewDataTypeName ?? String.Empty #>ById = function (id) {
+			$http.get('/api/<#= Model.PluralViewDataType ?? String.Empty #>Api/' + id).success(function (data) {
+				vm.<#= Model.ViewDataTypeName ?? String.Empty #> = data;
+				if (!vm.DisplayDetail) {
+					vm.DisplayDetail = true;
+				}
+			}).error(function () {
+			});
+		};
+		vm.AddDetail = function () {
+			if (!vm.DisplayDetail) {
+				vm.DisplayDetail = true;
+			}
+			vm.<#= Model.ViewDataTypeName ?? String.Empty #>.<#= Model.ChildRelationPlural ?? String.Empty #>.push({});
+		}
 
-        vm.edit<#= Model.ViewDataTypeName ?? String.Empty #> = function () {
-	        $http.post('/api/<#= Model.PluralViewDataType ?? String.Empty #>Api/' + vm.<#= Model.ViewDataTypeName ?? String.Empty #>.Id, vm.<#= Model.ViewDataTypeName ?? String.Empty #>).success(function (data) {
-	            vm.Employee = {};
-	        }).error(function (data) {
-	        });
-	    };
+		vm.edit<#= Model.ViewDataTypeName ?? String.Empty #> = function () {
+			$http.post('/api/<#= Model.PluralViewDataType ?? String.Empty #>Api/' + vm.<#= Model.ViewDataTypeName ?? String.Empty #>.Id, vm.<#= Model.ViewDataTypeName ?? String.Empty #>).success(function (data) {
+				vm.Employee = {};
+			}).error(function (data) {
+			});
+		};
 
 	
 		vm.save<#= Model.ViewDataTypeName ?? String.Empty #> = function () {
 			$http.put('/api/<#= Model.PluralViewDataType ?? String.Empty #>Api/', vm.<#= Model.ViewDataTypeName ?? String.Empty #>).success(function (data) {
-                // Message
+				// Message
 			}).error(function (data) {
 			});
 		};
 
 		
 		vm.delete<#= Model.ViewDataTypeName ?? String.Empty #> = function () {
-			$http.delete('/api/<<#= Model.PluralViewDataType ?? String.Empty #>Api/' + Id).success(function (data) {
-                // Function for delete
+			$http.delete('/api/<<#= Model.PluralViewDataType ?? String.Empty #>Api/' + vm.<#= Model.ViewDataTypeName ?? String.Empty #>.Id).success(function (data) {
+				// Function for delete
 			}).error(function (data) {
 			});
 		};
@@ -179,6 +207,10 @@ List<ModelProperty> GetEligibleProperties(EnvDTE.CodeType typeInfo, bool include
 
 IEnumerable<RelatedEntityInfo> ParentRelations {
 	get { return ((IEnumerable)Model.RelatedEntities).OfType<RelatedEntityInfo>().Where(x => x.RelationType == RelationType.Parent); }
+}
+
+IEnumerable<RelatedEntityInfo> ChildParentRelations {
+	get { return ((IEnumerable)Model.RelatedChildEntities).OfType<RelatedEntityInfo>().Where(x => x.RelationType == RelationType.Parent); }
 }
 
 // Helper

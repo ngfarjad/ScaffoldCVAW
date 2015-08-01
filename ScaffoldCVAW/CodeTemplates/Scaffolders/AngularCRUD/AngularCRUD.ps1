@@ -55,6 +55,44 @@ if (!$ModelType) {
 		$ControllerName = $ControllerName + "Controller"
 	}
 }
+
+
+
+if (!$ChildModelType) {
+	if ($ChildRelation.EndsWith("Controller", [StringComparison]::OrdinalIgnoreCase)) {
+		# If you've given "PeopleController" as the full controller name, we're looking for a model called People or Person
+		$ChildModelType = [System.Text.RegularExpressions.Regex]::Replace($ChildRelation, "Controller$", "", [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+		$foundChildModelType = Get-ProjectType $ChildModelType -Project $Project -ErrorAction SilentlyContinue
+		if (!$foundChildModelType) {
+			$ChildModelType = [string](Get-SingularizedWord $ChildModelType)
+			$foundChildModelType = Get-ProjectType $ChildModelType -Project $Project -ErrorAction SilentlyContinue
+		}
+	} else {
+		# If you've given "people" as the controller name, we're looking for a model called People or Person, and the controller will be PeopleController
+		$ChildModelType = $ChildRelation
+		$foundChildModelType = Get-ProjectType $ChildModelType -Project $Project -ErrorAction SilentlyContinue
+		if (!$foundChildModelType) {
+			$ChildModelType = [string](Get-SingularizedWord $ChildModelType)
+			$foundChildModelType = Get-ProjectType $ChildModelType -Project $Project -ErrorAction SilentlyContinue
+		}
+		if ($foundChildModelType) {
+			$ChildRelation = [string](Get-PluralizedWord $foundChildModelType.Name) + "Controller"
+			
+		}
+	}
+	if (!$foundChildModelType) { throw "Cannot find a model type corresponding to a controller called '$ChildRelation'. Try supplying a -ModelType parameter value." }
+} else {
+	# If you have specified a model type
+	$foundChildModelType = Get-ProjectType $ChildModelType -Project $Project
+	if (!$foundChildModelType) { return }
+	if (!$ChildRelation.EndsWith("Controller", [StringComparison]::OrdinalIgnoreCase)) {
+		$ChildRelation = $ChildRelation + "Controller"
+	}
+}
+
+
+
+
 Write-Host "Scaffolding $ControllerName..."
 
 if(!$DbContextType) { $DbContextType = [System.Text.RegularExpressions.Regex]::Replace((Get-Project $Project).Name, "[^a-zA-Z0-9]", "") + "Context" }
@@ -94,7 +132,11 @@ $dbContextNamespace = $foundDbContextType.Namespace.FullName
 $repositoriesNamespace = [T4Scaffolding.Namespaces]::Normalize($areaNamespace + ".Models")
 $modelTypePluralized = Get-PluralizedWord $foundModelType.Name
 $relatedEntities = [Array](Get-RelatedEntities $foundModelType.FullName -Project $project)
+$relatedChildEntities = [Array](Get-RelatedEntities $foundChildModelType.FullName -Project $project)
+
+
 if (!$relatedEntities) { $relatedEntities = @() }
+if (!$relatedChildEntities) { $relatedChildEntities = @() }
 
 $templateName = "MVCController"
 Add-ProjectItemViaTemplate $outputPath -Template $templateName -Model @{
@@ -167,8 +209,8 @@ Add-ProjectItemViaTemplate $outputPath -Template "_Detail" -Model @{
 	ViewName = $ViewName;
 	PrimaryKeyName = $primaryKeyName;
 	PluralViewDataType = $modelTypePluralized;
-	ViewDataType = [MarshalByRefObject]$foundModelType;
-	ViewDataTypeName = $foundModelType.Name;
+	ViewDataType = [MarshalByRefObject]$foundChildModelType;
+	ViewDataTypeName = $foundChildModelType.Name;
 	RelatedEntities = $relatedEntities;
 	ChildRelationPlural = Get-PluralizedWord $ChildRelation;
 } -SuccessMessage "Added $ViewName view at '{0}'" -TemplateFolders $TemplateFolders -Project $Project -CodeLanguage $CodeLanguage -Force:$Force
@@ -228,9 +270,11 @@ Add-ProjectItemViaTemplate $outputPath -Template "Index" -Model @{
 } -SuccessMessage "Added $ViewName view at '{0}'" -TemplateFolders $TemplateFolders -Project $Project -CodeLanguage $CodeLanguage -Force:$Force
 
 # Detail Template
+
 $ViewName = "Details"
 $outputPath = Join-Path $outputFolderName $ViewName
-Add-ProjectItemViaTemplate $outputPath -Template "Detail" -Model @{
+
+Add-ProjectItemViaTemplate $outputPath -Template "Details" -Model @{
 	IsContentPage = [bool]$Layout;
 	Layout = $Layout;
 	SectionNames = $SectionNames;
@@ -241,6 +285,9 @@ Add-ProjectItemViaTemplate $outputPath -Template "Detail" -Model @{
 	PluralViewDataType = $modelTypePluralized;
 	ViewDataType = [MarshalByRefObject]$foundModelType;
 	ViewDataTypeName = $foundModelType.Name;
+	ChildRelationPlural = Get-PluralizedWord $ChildRelation;
+	ChildViewDataType =	[MarshalByRefObject]$foundChildModelType;
+	ChildViewDataTypeName = $foundChildModelType;
 	RelatedEntities = $relatedEntities;
 } -SuccessMessage "Added $ViewName view at '{0}'" -TemplateFolders $TemplateFolders -Project $Project -CodeLanguage $CodeLanguage -Force:$Force
 
@@ -260,6 +307,7 @@ Add-ProjectItemViaTemplate $finalPath -Template "AngularJsController" -Model @{
 	PluralViewDataType = $modelTypePluralized;
 	ChildRelationPlural = Get-PluralizedWord $ChildRelation;
 	RelatedEntities = $relatedEntities;
+	RelatedChildEntities = $relatedChildEntities;
 	ParentDataType = (Get-PluralizedWord $foundModelType.Name);
 } -SuccessMessage "Added AngularJs Controller at {0}" `
 	-TemplateFolders $TemplateFolders -Project $Project -CodeLanguage $CodeLanguage -Force:$Force
